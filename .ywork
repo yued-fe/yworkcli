@@ -1,0 +1,9 @@
+
+var YworkConfig = {
+	"author":"luolei",
+	"logPath":{
+		"gulp":"./output.log"
+	}
+};
+
+module.exports = YworkConfig;
