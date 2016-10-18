@@ -7,8 +7,6 @@ var gulpSlash = require('gulp-slash'); //处理windows和unix文件夹斜杠
 var gulp = require('gulp');
 var chalk = require('chalk'); // 美化日志
 var plumber = require("gulp-plumber");
-var rename = require('gulp-rename');
-var concat = require('gulp-concat');
 var del = require('del');
 var gutil = require('gulp-util');
 

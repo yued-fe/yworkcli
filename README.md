@@ -5,7 +5,8 @@
 
 正在进行npm服务化改造,环境依赖很多,脚手架服务开发中。
 
-测试build项目
+安装`npm install Yworkcli del-cli`
+
 
 ##About
 

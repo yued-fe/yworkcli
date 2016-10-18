@@ -16,7 +16,7 @@ var _ = require('lodash');
 
 var yworkflow = require('../gulpfile.js'),
 	optimist = require('optimist')
-	.usage(chalk.red('说明:Yworkflow是一个智能的构建前端项目的脚手架工具'))
+	.usage(chalk.red('说明:Yworkcli是一个智能的构建前端项目的脚手架工具'))
 	.alias('h', 'help')
 	.alias('v', 'version')
 	.alias('t', 'test')
@@ -109,7 +109,7 @@ if (argv.version) {
  * @return {[type]}           [description]
  */
 if (argv.help || !!text) {
-	figlet('Yworkflow', function(err, data) {
+	figlet('Yworkcli', function(err, data) {
 		if (err) {
 			console.log('Something went wrong...');
 			console.dir(err);

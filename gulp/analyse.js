@@ -16,18 +16,14 @@ var chalk = require('chalk'); // 美化日志
 
 var RevAll = require('gulp-rev-custom-tag');
 var revReplace = require('gulp-rev-replace');
-var bust = require('gulp-buster');
 var gulpCopy = require('gulp-copy');
 
 var gutil = require('gulp-util');
 var resolveDependencies = require('gulp-resolve-dependencies');
-var concat = require('gulp-concat');
 
 var madge = require('madge');
 var fs = require('fs');
 var _ = require('lodash');
-
-
 
 
 var paths = {
