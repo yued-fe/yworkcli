@@ -1,11 +1,11 @@
 {
   "name": "Yworkcli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": {
     "name": "@foru17 <meleilei@gmail.com>"
   },
   "license": "ISC",
-  "description": "A smart front end workflow cli tool.Still under developing",
+  "description": "A smart front end workflow cli tool.",
   "bin": {
     "yworkcli": "bin/yworkcli"
   },

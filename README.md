@@ -15,7 +15,8 @@
 ```
 {
     "static":{
-        "path":"build/activity", //生成的项目资源路径        "gtimgName":"activity", //对应的gtimg地址资源路径
+        "path":"build/activity", //生成的项目资源路径
+        "gtimgName":"activity", //对应的gtimg地址资源路径
         "svn":"",
         "output":"_prelease" //本地输出的编译后路径
     },

@@ -24,7 +24,6 @@ process.chdir(LOCAL_FOLDER)
 var path = require('path');
 var SHELL_PATH = process.env.PWD
 var YWORKFLOW_PATH = path.resolve(__dirname, '..');
-// var PROJECT_CONFIG = require(SHELL_PATH + '/.yconfig'); //载入项目基础配置
 var gulp = require('gulp');
 var del = require('del');
 var combo = require('gulp-qidian-combo');
