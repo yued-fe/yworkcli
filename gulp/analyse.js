@@ -16,7 +16,6 @@ var chalk = require('chalk'); // 美化日志
 
 var RevAll = require('gulp-rev-custom-tag');
 var revReplace = require('gulp-rev-replace');
-var gulpCopy = require('gulp-copy');
 
 var gutil = require('gulp-util');
 var resolveDependencies = require('gulp-resolve-dependencies');

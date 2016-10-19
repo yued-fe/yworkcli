@@ -5,19 +5,21 @@
 process.title = 'yworkcli';
 var YworkConfig = require('../.ywork');
 var gulpSlash = require('gulp-slash');
+var fs=require('fs');
 var chalk = require('chalk');
 var figlet = require('figlet');
 var exec = require('exec');
 var execSync = require('child_process').execSync;
 var path = require('path');
 var spawnSync = require('child_process').spawnSync;
- var dateFormat = require('dateformat');
+var dateFormat = require('dateformat');
 var _ = require('lodash');
 
 var yworkflow = require('../gulpfile.js'),
 	optimist = require('optimist')
 	.usage(chalk.red('说明:Yworkcli是一个智能的构建前端项目的脚手架工具'))
 	.alias('h', 'help')
+	.alias('it','init')
 	.alias('v', 'version')
 	.alias('t', 'test')
 	.alias('pb', 'publish')
@@ -26,12 +28,12 @@ var yworkflow = require('../gulpfile.js'),
 	.alias('cl', 'clean')
 	.alias('gl', 'gulp')
 	.alias('w','where')
-	.describe(chalk.green('init'), ':生成模板文件夹和配置文件')
-	.describe(chalk.green('sprite'), ':生成项目精灵图')
-	.describe(chalk.green('build'), ':编译资源')
+	.describe(chalk.green('init'), ':生成配置文件模板')
+	// .describe(chalk.green('sprite'), ':生成项目精灵图')
+	// .describe(chalk.green('build'), ':编译资源')
 	.describe(chalk.green('publish'), ':生成静态资源和模板')
-	.describe(chalk.green('ftp'), ':发布到内网ftp服务器预览')
-	.describe(chalk.green('gulp'), ':显示yworkflow所涉及的所有gulp任务')
+	// .describe(chalk.green('ftp'), ':发布到内网ftp服务器预览')
+	// .describe(chalk.green('gulp'), ':显示yworkflow所涉及的所有gulp任务')
 
 var argv = optimist.argv;
 var text = argv._.join(' ');
@@ -47,7 +49,25 @@ var text = argv._.join(' ');
  * @type {Object}
  */
 var defaults = {
-};
+    "static":{
+        "path":"build",
+        "gtimgName":"qd",
+        "svn":"",
+        "output":"_prelease"
+    },
+    "views":{
+        "path":"src/views",
+        "output":"_previews"
+    },
+    "configs":{
+        "path":"src/node--config",
+        "output":"_prelease"
+    },
+    "combo":{
+        "force":true
+    }
+}
+
 
 
 var SHELL_PATH = process.env.PWD
@@ -100,6 +120,8 @@ if (argv.version) {
 		console.log(data);
 	});
 
+
+
 }
 
 
@@ -118,6 +140,27 @@ if (argv.help || !!text) {
 		console.log(chalk.bold.green(data))
 	});
 	return console.log(optimist.help());
+}
+
+
+/**
+ *显示yworkflow说明
+ * @param  {[type]} argv.help [description]
+ * @return {[type]}           [description]
+ */
+if (argv.init) {
+	var _taskStartTime = (new Date()).getTime();
+	console.log('[Yworkcli]----START----');
+
+	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH
+	var _skipReversion = !!(argv['skipV']) ? true : false;
+	var _LOGPATH = !!(argv['log']) ? argv['log'] : LOGPATH;
+	console.log('[Yworkcli]设置的日志路径是 \n' + path.join(_progressPath , _LOGPATH) );
+	var SHELL_LOG_TASK = ' | tee -a ' + path.join(_progressPath , _LOGPATH);
+	var _echoDefault = JSON.stringify(defaults);
+	fs.writeFileSync(_progressPath + '/ywork.config.json', JSON.stringify(defaults, null, 4));
+
+
 }
 
 
@@ -216,7 +259,7 @@ if (argv.publish) {
 
 	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH
 	var _skipReversion = !!(argv['skipV']) ? true : false;
-	var _LOGPATH = !!(argv['log']) ? argv['log'] : './ywoklog';
+	var _LOGPATH = !!(argv['log']) ? argv['log'] : LOGPATH;
 	console.log('[Yworkcli]设置的日志路径是 \n' + path.join(_progressPath , _LOGPATH) );
 	var SHELL_LOG_TASK = ' | tee -a ' + path.join(_progressPath , _LOGPATH);
 

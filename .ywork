@@ -2,7 +2,7 @@
 var YworkConfig = {
 	"author":"luolei",
 	"logPath":{
-		"gulp":"./output.log"
+		"gulp":"./ywork.log"
 	}
 };
 

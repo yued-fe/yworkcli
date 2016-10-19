@@ -10,7 +10,6 @@ var chalk = require('chalk'); //美化日志
 var plumber = require("gulp-plumber");
 var gutil = require('gulp-util');
 var exec = require('exec');
-// var Git = require("nodegit");
 var dateFormat = require('dateformat');
 
 gulp.task('git', function() {
