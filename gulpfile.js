@@ -9,7 +9,6 @@ LOCAL_FOLDER = LOCAL_FOLDER.replace(/ /g, '\\ ');
 var path = require('path');
 var SHELL_PATH = process.env.PWD
 var YWORKFLOW_PATH = path.resolve(__dirname, '..');
-// var PROJECT_CONFIG = require(SHELL_PATH + '/.yconfig'); //载入项目基础配置
 
 //引入 gulp
 var gulp = require('gulp');
@@ -35,16 +34,6 @@ var paths = {
 /**
  * 开发的过程中,监听src/目录下的sass、js等静态资源,进行编译处理
  */
-
-var watching = false;
-
-function gulpWatch(_progressPash) {
-        gulp.watch(_progressPash +paths.js, ['scripts']);
-        gulp.watch(_progressPash + paths.css, ['sass']);
-        gulp.watch(_progressPash + paths.img, ['images-copy']);
-}
-
-
 
 
 /**

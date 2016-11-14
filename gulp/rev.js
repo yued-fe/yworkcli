@@ -55,7 +55,6 @@ gulp.task('rev', function(cb) {
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
-        console.log(PROJECT_CONFIG);
     } catch (e) {
         console.log('未制定配置文件,使用默认配置');
     }
@@ -271,8 +270,6 @@ gulp.task('rev-views', function(cb) {
         console.log(custome_project_config);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
         console.log('当前配置');
-        console.log(PROJECT_CONFIG);
-        // console.log(PROJECT_CONFIG);
     } catch (e) {
         console.log('未制定配置文件,使用默认配置');
     }

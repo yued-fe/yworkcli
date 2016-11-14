@@ -1,6 +1,7 @@
 
 var YworkConfig = {
 	"author":"luolei",
+	"configFileName":"ywork.config.json",
 	"logPath":{
 		"gulp":"./ywork.log"
 	}

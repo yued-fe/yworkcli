@@ -29,6 +29,7 @@ var del = require('del');
 var combo = require('gulp-qidian-combo');
 var argv = require('yargs').argv;
 var _ = require('lodash');
+var removeEmptyLines = require('gulp-remove-empty-lines');
 
 // var envType = "local";
 // var staticConf = serverConf[envType]['static'];
@@ -59,61 +60,44 @@ gulp.task('preview-combo', function() {
         },
         "configs": {
             "path": "src/server/config"
+        },
+        "combo": {
+            "force": true,
+            "gtimgTag": "<%= staticConf.domains.static %>",
+            "uri": "<%= staticConf.domains.static %>/c/=",
+            "logicCondition": "envType !== \"pro\""
         }
     }
-    console.log(_progressPash + '/ywork.config.json');
+
+
+
     try {
+        console.log('读取combo配置');
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
+        console.log(PROJECT_CONFIG);
     } catch (e) {
         console.log(e);
         console.log('未制定配置文件,使用默认配置');
     }
 
-
-
     var _updateTime = dateFormat((new Date()).getTime(), 'yyyymmddHHMM');
-    var baseUri = '<%= staticConf.staticDomain %>/c/='; //这里设置combo的url地址
+    var baseUri = PROJECT_CONFIG.combo.uri; //这里设置combo的url地址
     console.log(_progressPash + '/' + PROJECT_CONFIG.views.output + '/**/*.html');
-    gulp.src(_progressPash + '/' +  PROJECT_CONFIG.views.output + '/**/*.html')
+    gulp.src(_progressPash + '/' + PROJECT_CONFIG.views.output + '/**/*.html')
         .pipe(gulpSlash())
         .pipe(combo(baseUri, {
             splitter: ',',
             async: false,
-            ignorePathVar: '<%= staticConf.staticPath %>',
-            assignPathTag: PROJECT_CONFIG.static.gtimgName, //这里需要配置combo后的相关文件路径
+            ignorePathVar: PROJECT_CONFIG.combo.gtimgTag,
+            assignPathTag: '', //这里需要配置combo后的相关文件路径
             serverLogicToggle: _useLogic,
-            serverLogicCondition: 'envType == "pro" || envType == "oa"'
+            serverLogicCondition: PROJECT_CONFIG.combo.logicCondition
         }, {
             max_age: 31536000
+        }))
+        .pipe(removeEmptyLines({
+            removeComments: true
         }))
         .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.views.output));
-})
-
-/**
- * 不做版本,直接将view html进行combo处理
- * 直接命令行执行 gulp
- */
-
-gulp.task('view-combo', function() {
-    var _useLogic = gutil.env.useLogic ? true : false;
-    var _progressPash = gutil.env.path ? gutil.env.path : '';
-
-    var _updateTime = dateFormat((new Date()).getTime(), 'yyyymmddHHMM');
-    // console.log('url时间更新' + _updateTime);
-    var baseUri = '<%= staticConf.staticDomain %>/c/=';
-    gulp.src('src/views/**/*.html')
-        .pipe(gulpSlash())
-        .pipe(combo(baseUri, {
-            splitter: ',',
-            async: false,
-            ignorePathVar: '<%= staticConf.staticPath %>',
-            assignPathTag: PROJECT_CONFIG.gtimgName, //这里需要配置combo后的相关文件路径
-            serverLogicToggle: _useLogic,
-            serverLogicCondition: 'envType == "pro" || envType == "oa', //这里配置combo的触发逻辑,可以是服务器环境,也可以是tag值
-            updateTime: _updateTime
-        }, {
-            max_age: 31536000
-        }))
-        .pipe(gulp.dest('_previews'));
 })
