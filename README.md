@@ -38,7 +38,7 @@
 
 ##基础使用方法
 
-由于`yworkcli`是讲构建任务完全配置化。可以理解成，通过上面的`ywork.config.json`配置静态资源和views的入口和出口。
+由于`yworkcli`将核心构建任务完全配置化。可以理解成，通过上面的`ywork.config.json`配置静态资源和views的入口和出口。
 
 项目路径执行`yworkcli --init`会初始化一个配置文件,大家务必按照自己的项目需求来配置。
 
