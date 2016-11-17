@@ -28,9 +28,12 @@
         "path":"src/node--config",//框架机config路径
         "output":"_prelease"//框架集config发布路径
     },
-    "combo":{
-        "force":true //是否强制开启combo:默认开启
-    }
+    "combo": {
+        "force": true,//是否开启combo
+        "gtimgTag":"<%= staticConf.domains.static %>",// 静态资源环境配置
+        "uri":"<%= staticConf.domains.static %>/c/=",//combo的线上URL接口
+        "logicCondition": "envType == \"pro\" || envType == \"oa\"" //开启combo的条件,注意需要转义双引号
+    },
 }
 
 ```
