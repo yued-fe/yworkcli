@@ -30,16 +30,9 @@ var paths = {
     img: ['/src/static/**/*.{jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF}'] // 图片相关
 };
 
-
-/**
- * 开发的过程中,监听src/目录下的sass、js等静态资源,进行编译处理
- */
-
-
 /**
  * 自定义的gulp任务,可以单独执行 gulp {task}来执行相关任务
  */
-
 
 gulp.task('help', taskListing);
 // gulp

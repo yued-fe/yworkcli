@@ -20,7 +20,8 @@ var RevAll = require('gulp-rev-custom-tag');
 var revReplace = require('gulp-rev-replace');
 var execSync = require('child_process').execSync;
 var _ = require('lodash');
-
+var stringify = require('json-stable-stringify');
+var sortJSON = require('gulp-json-sort').default;
 
 var paths = {
     sass: 'src/static/**/*.scss',
@@ -28,10 +29,17 @@ var paths = {
     prelease: '_prelease'
 };
 
+
+
+
+
+
+
 /**
  * 分析目标文件夹的hash值,根据hash-tag-map 进行处理
  */
 gulp.task('rev', function(cb) {
+
     console.log('[Yworkcli]处理静态资源版本号');
     var _skipReversion = !!(gutil.env.skipV) ? true : false;
     var _progressPash = gutil.env.path ? gutil.env.path : '';
@@ -41,6 +49,7 @@ gulp.task('rev', function(cb) {
      * 设置默认项目配置
      * @type {Object}
      */
+
     var PROJECT_CONFIG = {
         "static": {
             "path": "build",
@@ -50,7 +59,6 @@ gulp.task('rev', function(cb) {
             "path": ""
         }
     }
-
 
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
@@ -140,8 +148,6 @@ gulp.task('rev-build-all', function(cb) {
         console.log('未制定配置文件,使用默认配置');
     }
 
-
-
     /**
      * 首先备份原有的rev-HashMap.json,做比较用
      */
@@ -162,7 +168,15 @@ gulp.task('rev-build-all', function(cb) {
     gulp.src(_progressPash + '/' + PROJECT_CONFIG.static.output + '/' +  '**/*')
         .pipe(revAll.revision())
         .pipe(revAll.verionRevFile()) //创建静态资源hash映射表
+        .pipe(sortJSON({ space: 2 }))
         .pipe(gulp.dest(_progressPash + '/hash-tag-map'))
+
+
+    // 对hash-tag-mag的json进行排序处理
+
+
+
+
 
     cb()
 });

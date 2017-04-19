@@ -16,7 +16,6 @@
  * 若需要忽略某js和css,只需要在html标签中增加 data-ignore="true" 即可
  *
  */
-
 var gulpSlash = require('gulp-slash'); //处理windows和unix文件夹斜杠
 var LOCAL_FOLDER = gulpSlash(__dirname).split('Yworkflow/')[0];
 process.chdir(LOCAL_FOLDER)
@@ -64,12 +63,11 @@ gulp.task('preview-combo', function() {
         "combo": {
             "force": true,
             "gtimgTag": "<%= staticConf.domains.static %>",
+            "gtimgNamePrepend":"",//兼容方案,是否在子资源路由前增加文件别名
             "uri": "<%= staticConf.domains.static %>/c/=",
-            "logicCondition": "envType !== \"pro\""
+            "logicCondition": "envType !== \"pro\"",
         }
     }
-
-
 
     try {
         console.log('读取combo配置');
@@ -90,7 +88,7 @@ gulp.task('preview-combo', function() {
             splitter: ',',
             async: false,
             ignorePathVar: PROJECT_CONFIG.combo.gtimgTag,
-            assignPathTag: '', //这里需要配置combo后的相关文件路径
+            assignPathTag: PROJECT_CONFIG.combo.gtimgNamePrepend, //这里需要配置combo后的相关文件路径
             serverLogicToggle: _useLogic,
             serverLogicCondition: PROJECT_CONFIG.combo.logicCondition
         }, {
