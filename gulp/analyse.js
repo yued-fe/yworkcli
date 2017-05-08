@@ -19,7 +19,6 @@ var revReplace = require('gulp-rev-replace');
 var gutil = require('gulp-util');
 var resolveDependencies = require('gulp-resolve-dependencies');
 
-var madge = require('madge');
 var fs = require('fs');
 var _ = require('lodash');
 var stringifyStable = require('json-stable-stringify'); // json 排序
@@ -31,7 +30,6 @@ var stringifyStable = require('json-stable-stringify'); // json 排序
 gulp.task('deps-update-all', function(cb) {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     console.log(chalk.red('[Start]分析编译后的资源版本HASH变动'));
-
     //首先获得上一次的业务js编译后的hash值
     var _lastBuildHashMap = require(_progressPash + '/hash-tag-map/rev-HashMap-last.json');
     var _currentBuildHashMap = require(_progressPash + '/hash-tag-map/rev-HashMap.json');
@@ -47,7 +45,6 @@ gulp.task('deps-update-all', function(cb) {
             //如果文件名没有变化,则比较两者的hash
             var _oldHash = !!_lastBuildHashMap[_checkJsFileName] ? _lastBuildHashMap[_checkJsFileName] : 00000;
             var _newHash = !!_currentBuildHashMap[_checkJsFileName] ? _currentBuildHashMap[_checkJsFileName] : 11111;
-
             //如果hash值发生了变化,则可以理解成依赖文件有变,接下来处理相关依赖
             if (_lastBuildHashMap[_checkJsFileName] !== _currentBuildHashMap[_checkJsFileName]) {
                 console.log('[Hash比较] ' + chalk.green(_oldHash) + chalk.blue(' / ') + chalk.red(_newHash) + ' 文件:' + _checkJsFileName);
@@ -57,7 +54,6 @@ gulp.task('deps-update-all', function(cb) {
         } else {
             console.log('[新文件]' + _checkJsFileName);
         }
-
     }
 
     if (_changedJsFiles.length > 0) {

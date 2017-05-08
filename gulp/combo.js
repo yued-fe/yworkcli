@@ -30,8 +30,6 @@ var argv = require('yargs').argv;
 var _ = require('lodash');
 var removeEmptyLines = require('gulp-remove-empty-lines');
 
-// var envType = "local";
-// var staticConf = serverConf[envType]['static'];
 var dateFormat = require('dateformat');
 var gutil = require('gulp-util');
 
