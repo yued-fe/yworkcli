@@ -163,7 +163,6 @@ if (argv.clean) {
 	console.log('要处理的路径是' + _progressPath);
 	console.log('执行文件清理');
 	console.log(chalk.green('[shell] cd ' + YWORKFLOW_PATH + ' && del  -f  ' + _progressPath));
-
 	var toCleanPath = ['_prelease/', '_previews/', '_tmp/'];
 	var _cleanPathLength = toCleanPath.length;
 	for (var i = 0; i < _cleanPathLength; i++) {
@@ -221,7 +220,6 @@ if (argv.publish) {
 	var CleanTConfigPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/' + PROJECT_CONFIG.configs.output);
 	var CleanTaskPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/_tmp');
 	var CelanTaskLog = execSync('cd ' + YWORKFLOW_PATH + '&& > ' + path.join(_progressPath, _LOGPATH));
-
 
 	execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev --path ' + _progressPath + SHELL_LOG_TASK);
 	// 备份个初始的静态资源,做二次替换用

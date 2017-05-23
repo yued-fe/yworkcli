@@ -43,7 +43,6 @@ gulp.task('deps-update-all', function(cb) {
             //如果文件名没有变化,则比较两者的hash
             var _oldHash = !!_lastBuildHashMap[_checkJsFileName] ? _lastBuildHashMap[_checkJsFileName] : 00000;
             var _newHash = !!_currentBuildHashMap[_checkJsFileName] ? _currentBuildHashMap[_checkJsFileName] : 11111;
-
             //如果hash值发生了变化,则可以理解成依赖文件有变,接下来处理相关依赖
             if (_lastBuildHashMap[_checkJsFileName] !== _currentBuildHashMap[_checkJsFileName]) {
                 console.log('[Hash比较] ' + chalk.green(_oldHash) + chalk.blue(' / ') + chalk.red(_newHash) + ' 文件:' + _checkJsFileName);
@@ -53,7 +52,6 @@ gulp.task('deps-update-all', function(cb) {
         } else {
             console.log('[新文件]' + _checkJsFileName);
         }
-
     }
 
     if (_changedJsFiles.length > 0) {

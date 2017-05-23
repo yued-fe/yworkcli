@@ -22,13 +22,15 @@ var execSync = require('child_process').execSync;
 var _ = require('lodash');
 var stringify = require('json-stable-stringify');
 var sortJSON = require('gulp-json-sort').default;
+// var Minimize = require('minimize');
+
+
 
 var paths = {
     sass: 'src/static/**/*.scss',
     build: 'build',
     prelease: '_prelease'
 };
-
 
 /**
  * 分析目标文件夹的hash值,根据hash-tag-map 进行处理
@@ -78,14 +80,13 @@ gulp.task('rev', function(cb) {
         taskAbsPath: _progressPash
     });
 
-    var ignoredFiles = {
-    };
+    var ignoredFiles = {};
     console.log('=====处理rev=====');
-    console.log(_progressPash + '/' + PROJECT_CONFIG.static.path + '/' +  PROJECT_CONFIG.static.gtimgName +  '/**');
+    console.log(_progressPash + '/' + PROJECT_CONFIG.static.path + '/' + PROJECT_CONFIG.static.gtimgName + '/**');
     console.log(PROJECT_CONFIG.static.output);
 
     gulp.src([
-            _progressPash + '/' + PROJECT_CONFIG.static.path + '/' +  PROJECT_CONFIG.static.gtimgName +  '/**',
+            _progressPash + '/' + PROJECT_CONFIG.static.path + '/' + PROJECT_CONFIG.static.gtimgName + '/**',
             '!' + _progressPash + '/' + PROJECT_CONFIG.static.path + '/**/*.map',
             '!' + _progressPash + '/' + PROJECT_CONFIG.static.path + '/**/*.html'
         ])
@@ -93,8 +94,14 @@ gulp.task('rev', function(cb) {
         .pipe(revAll.revision())
         .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.static.output))
         .pipe(revAll.manifestFile()) //创建静态资源hash映射表
+        .pipe(sortJSON({
+            space: 2
+        }))
         .pipe(gulp.dest(_progressPash + '/hash-tag-map'))
         .pipe(revAll.verionIdFile()) //创建递增id映射表
+        .pipe(sortJSON({
+            space: 2
+        }))
         .pipe(gulp.dest(_progressPash + '/hash-tag-map'))
 
     cb()
@@ -160,18 +167,13 @@ gulp.task('rev-build-all', function(cb) {
         // sprites:paths.dist.
     };
 
-    gulp.src(_progressPash + '/' + PROJECT_CONFIG.static.output + '/' +  '**/*')
+    gulp.src(_progressPash + '/' + PROJECT_CONFIG.static.output + '/' + '**/*')
         .pipe(revAll.revision())
         .pipe(revAll.verionRevFile()) //创建静态资源hash映射表
-        .pipe(sortJSON({ space: 2 }))
+        .pipe(sortJSON({
+            space: 2
+        }))
         .pipe(gulp.dest(_progressPash + '/hash-tag-map'))
-
-
-    // 对hash-tag-mag的json进行排序处理
-
-
-
-
 
     cb()
 });
@@ -209,12 +211,12 @@ gulp.task('rev-fix', function() {
 
 
     var manifest = gulp.src(_progressPash + "/hash-tag-map/rev-verionId.json");
-    return gulp.src([_progressPash + '/' +  PROJECT_CONFIG.static.output + '/**/*.{js,ejs,css}']) // Minify any CSS sources
+    return gulp.src([_progressPash + '/' + PROJECT_CONFIG.static.output + '/**/*.{js,ejs,css}']) // Minify any CSS sources
         .pipe(gulpSlash())
         .pipe(revReplace({
             manifest: manifest
         }))
-        .pipe(gulp.dest(_progressPash + '/' +  PROJECT_CONFIG.static.output))
+        .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.static.output))
 });
 
 
@@ -222,7 +224,7 @@ gulp.task('rev-fix', function() {
 gulp.task('tmp-store', function() {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
 
-/**
+    /**
      * 设置默认项目配置
      * @type {Object}
      */
@@ -236,15 +238,12 @@ gulp.task('tmp-store', function() {
         }
     }
 
-
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未制定配置文件,使用默认配置');
     }
-
-
 
     return gulp.src([_progressPash + '/' + PROJECT_CONFIG.static.output + '/**/*']) // Minify any CSS sources
         .pipe(gulpSlash())
@@ -379,7 +378,7 @@ gulp.task('rev-views-deps', function(cb) {
         .pipe(revReplace({
             manifest: manifest
         }))
-        .pipe(gulp.dest(_progressPash + '/' +  PROJECT_CONFIG.views.output))
+        .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.views.output))
     cb()
 });
 
@@ -419,8 +418,7 @@ gulp.task('copy-config', function() {
     }
 
     console.log(chalk.red('[处理]复制node-config配置文件到 _previews/ 目录'));
-    gulp.src(_progressPash + '/' + PROJECT_CONFIG.configs.path + '/**/*' )
+    gulp.src(_progressPash + '/' + PROJECT_CONFIG.configs.path + '/**/*')
         .pipe(gulpSlash())
-        .pipe(gulp.dest(_progressPash + '/'+ PROJECT_CONFIG.configs.output))
+        .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.configs.output))
 })
-
