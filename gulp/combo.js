@@ -26,12 +26,9 @@ var YWORKFLOW_PATH = path.resolve(__dirname, '..');
 var gulp = require('gulp');
 var del = require('del');
 var combo = require('gulp-qidian-combo');
-var argv = require('yargs').argv;
 var _ = require('lodash');
 var removeEmptyLines = require('gulp-remove-empty-lines');
 
-// var envType = "local";
-// var staticConf = serverConf[envType]['static'];
 var dateFormat = require('dateformat');
 var gutil = require('gulp-util');
 
@@ -79,7 +76,6 @@ gulp.task('preview-combo', function() {
         console.log('未制定配置文件,使用默认配置');
     }
 
-    var _updateTime = dateFormat((new Date()).getTime(), 'yyyymmddHHMM');
     var baseUri = PROJECT_CONFIG.combo.uri; //这里设置combo的url地址
     console.log(_progressPash + '/' + PROJECT_CONFIG.views.output + '/**/*.html');
     gulp.src(_progressPash + '/' + PROJECT_CONFIG.views.output + '/**/*.html')

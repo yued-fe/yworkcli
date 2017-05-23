@@ -8,18 +8,14 @@ var LOCAL_FOLDER = gulpSlash(__dirname).split('Yworkflow/')[0];
 var path = require('path');
 
 var gulp = require('gulp');
-var del = require('del');
 var gulp = require('gulp');
 var chalk = require('chalk'); // 美化日志
 
 
 var RevAll = require('gulp-rev-custom-tag');
 var revReplace = require('gulp-rev-replace');
-
 var gutil = require('gulp-util');
-var resolveDependencies = require('gulp-resolve-dependencies');
 
-var madge = require('madge');
 var fs = require('fs');
 var _ = require('lodash');
 var stringifyStable = require('json-stable-stringify'); // json 排序
@@ -31,7 +27,6 @@ var stringifyStable = require('json-stable-stringify'); // json 排序
 gulp.task('deps-update-all', function(cb) {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     console.log(chalk.red('[Start]分析编译后的资源版本HASH变动'));
-
     //首先获得上一次的业务js编译后的hash值
     var _lastBuildHashMap = require(_progressPash + '/hash-tag-map/rev-HashMap-last.json');
     var _currentBuildHashMap = require(_progressPash + '/hash-tag-map/rev-HashMap.json');
@@ -39,8 +34,9 @@ gulp.task('deps-update-all', function(cb) {
     var _currentIdMapRevert = _.invert(_currentIdMap);
 
     //创建一个临时数据储存变化了的js名
-    var _changedJsFiles = [],
-        _changedJsSourceFiles = [];
+    var _changedJsFiles = [];
+    var _changedJsSourceFiles = [];
+
     for (var i = 0; i < Object.keys(_currentBuildHashMap).length; i++) {
         var _checkJsFileName = Object.keys(_currentBuildHashMap)[i];
         if (!!_lastBuildHashMap[_checkJsFileName]) {
@@ -118,6 +114,7 @@ gulp.task('deps-update-all', function(cb) {
 
         var _updateVerNum = _updateStartVernum + '.' + _updateSecVerNum;
         var _updateFileName = _lastId.replace(_currentVerNum + '.' + _fileExt, _updateVerNum + '.' + _fileExt);
+
         console.log(chalk.blue('[处理]更新:') + chalk.green(_lastId) + chalk.blue(' ==> ') + chalk.green(_updateFileName));
         _currentFileString = _currentFileString.replace(_lastId, _updateFileName);
         _currentBuildHashMapString = _currentBuildHashMapString.replace(_lastId, _updateFileName);
@@ -138,17 +135,4 @@ gulp.task('deps-update-all', function(cb) {
     fs.writeFileSync(_progressPash + '/hash-tag-map/rev-verionId.json', JSON.stringify(JSON.parse(stringifyStable(_updateFileStringBk)), null, 4));
 
 
-
-
-
-
-
 });
-
-
-
-
-
-
-
-

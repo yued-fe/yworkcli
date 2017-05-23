@@ -30,11 +30,6 @@ var paths = {
 };
 
 
-
-
-
-
-
 /**
  * 分析目标文件夹的hash值,根据hash-tag-map 进行处理
  */
