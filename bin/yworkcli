@@ -220,7 +220,7 @@ if (argv.publish) {
 	var CleanTConfigPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/' + PROJECT_CONFIG.configs.output);
 	var CleanTaskPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/_tmp');
 	var CelanTaskLog = execSync('cd ' + YWORKFLOW_PATH + '&& > ' + path.join(_progressPath, _LOGPATH));
-
+	execSync('cd ' + YWORKFLOW_PATH + ' && gulp clean-css-sourcemap --path ' + _progressPath + SHELL_LOG_TASK);
 	execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev --path ' + _progressPath + SHELL_LOG_TASK);
 	// 备份个初始的静态资源,做二次替换用
 	execSync('cd ' + YWORKFLOW_PATH + '&& gulp tmp-store --path ' + _progressPath + SHELL_LOG_TASK);

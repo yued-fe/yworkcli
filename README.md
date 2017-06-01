@@ -2,6 +2,10 @@
 
 基于gulp任务流的模板和静态资源版本化、combo工具
 
+## 更新
+
+* 2017.06.01 publish默认清理源css中的sourcemap以防冲突
+
 ## 安装
 
 安装`npm install -g Yworkcli del-cli`

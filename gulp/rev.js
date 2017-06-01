@@ -41,12 +41,10 @@ gulp.task('rev', function(cb) {
     var _skipReversion = !!(gutil.env.skipV) ? true : false;
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
-
     /**
      * 设置默认项目配置
      * @type {Object}
      */
-
     var PROJECT_CONFIG = {
         "static": {
             "path": "build",
