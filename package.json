@@ -1,6 +1,6 @@
 {
   "name": "Yworkcli",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "author": {
     "name": "@foru17 <meleilei@gmail.com>"
   },
@@ -44,6 +44,7 @@
     "figlet": "^1.2.0",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.1.0",
+    "gulp-clean-css": "^3.4.1",
     "gulp-folders": "^1.1.0",
     "gulp-header": "^1.7.1",
     "gulp-json-sort": "^1.0.0",
