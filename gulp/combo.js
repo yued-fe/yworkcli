@@ -16,13 +16,8 @@
  * 若需要忽略某js和css,只需要在html标签中增加 data-ignore="true" 即可
  *
  */
-var gulpSlash = require('gulp-slash'); //处理windows和unix文件夹斜杠
-var LOCAL_FOLDER = gulpSlash(__dirname).split('Yworkflow/')[0];
-process.chdir(LOCAL_FOLDER)
 
 var path = require('path');
-var SHELL_PATH = process.env.PWD
-var YWORKFLOW_PATH = path.resolve(__dirname, '..');
 var gulp = require('gulp');
 var del = require('del');
 var combo = require('gulp-qidian-combo');
@@ -31,7 +26,6 @@ var removeEmptyLines = require('gulp-remove-empty-lines');
 
 var dateFormat = require('dateformat');
 var gutil = require('gulp-util');
-
 
 /**
  * 执行combo,将预览版的html中的css和js url地址进行combo拼接
@@ -67,19 +61,15 @@ gulp.task('preview-combo', function() {
     }
 
     try {
-        console.log('读取combo配置');
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
-        console.log(PROJECT_CONFIG);
     } catch (e) {
         console.log(e);
         console.log('未制定配置文件,使用默认配置');
     }
 
     var baseUri = PROJECT_CONFIG.combo.uri; //这里设置combo的url地址
-    console.log(_progressPash + '/' + PROJECT_CONFIG.views.output + '/**/*.html');
     gulp.src(_progressPash + '/' + PROJECT_CONFIG.views.output + '/**/*.html')
-        .pipe(gulpSlash())
         .pipe(combo(baseUri, {
             splitter: ',',
             async: false,

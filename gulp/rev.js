@@ -2,29 +2,25 @@
  * 发布和编译
  * Author: Luolei
  */
-var gulpSlash = require('gulp-slash'); //处理windows和unix文件夹斜杠
 var gutil = require('gulp-util');
 var path = require('path');
-var SHELL_PATH = process.env.PWD;
-SHELL_PATH = SHELL_PATH.replace(/ /g, '\\ ');
+
 var YWORKFLOW_PATH = path.resolve(__dirname, '..');
 
 var gulp = require('gulp');
 var gulp = require('gulp');
 var del = require('del');
 var chalk = require('chalk'); // 美化日志
+var _ = require('lodash');
 
 var rename = require('gulp-rename')
 
 var RevAll = require('gulp-rev-custom-tag');
 var revReplace = require('gulp-rev-replace');
 var execSync = require('child_process').execSync;
-var _ = require('lodash');
+
 var stringify = require('json-stable-stringify');
 var sortJSON = require('gulp-json-sort').default;
-// var Minimize = require('minimize');
-
-
 
 var paths = {
     sass: 'src/static/**/*.scss',
@@ -33,27 +29,29 @@ var paths = {
 };
 
 /**
+ * 设置默认项目配置
+ * @type {Object}
+ */
+var PROJECT_CONFIG = {
+    "static": {
+        "path": "build",
+        "gtimgName": 'qdm'
+    },
+    "views": {
+        "path": ""
+    }
+}
+
+
+
+/**
  * 分析目标文件夹的hash值,根据hash-tag-map 进行处理
  */
 gulp.task('rev', function(cb) {
-
     console.log('[Yworkcli]处理静态资源版本号');
-    var _skipReversion = !!(gutil.env.skipV) ? true : false;
+    var _skipReversion = (gutil.env.skipV === true) ? true : false;
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
-    /**
-     * 设置默认项目配置
-     * @type {Object}
-     */
-    var PROJECT_CONFIG = {
-        "static": {
-            "path": "build",
-            "gtimgName": _gtimgNameArgs
-        },
-        "views": {
-            "path": ""
-        }
-    }
 
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
@@ -79,16 +77,11 @@ gulp.task('rev', function(cb) {
     });
 
     var ignoredFiles = {};
-    console.log('=====处理rev=====');
-    console.log(_progressPash + '/' + PROJECT_CONFIG.static.path + '/' + PROJECT_CONFIG.static.gtimgName + '/**');
-    console.log(PROJECT_CONFIG.static.output);
-
     gulp.src([
             _progressPash + '/' + PROJECT_CONFIG.static.path + '/' + PROJECT_CONFIG.static.gtimgName + '/**',
             '!' + _progressPash + '/' + PROJECT_CONFIG.static.path + '/**/*.map',
             '!' + _progressPash + '/' + PROJECT_CONFIG.static.path + '/**/*.html'
         ])
-        .pipe(gulpSlash())
         .pipe(revAll.revision())
         .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.static.output))
         .pipe(revAll.manifestFile()) //创建静态资源hash映射表
@@ -109,7 +102,6 @@ gulp.task('rev', function(cb) {
 gulp.task('copy-hash-map', function(cb) {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     gulp.src(_progressPash + '/hash-tag-map/rev-HashMap.json')
-        .pipe(gulpSlash())
         .pipe(rename('rev-HashMap-last.json'))
         .pipe(gulp.dest(_progressPash + '/hash-tag-map'))
     cb()
@@ -125,21 +117,6 @@ gulp.task('copy-hash-map', function(cb) {
 gulp.task('rev-build-all', function(cb) {
     var _skipReversion = !!(gutil.env.skipV) ? true : false;
     var _progressPash = gutil.env.path ? gutil.env.path : '';
-
-    /**
-     * 设置默认项目配置
-     * @type {Object}
-     */
-    var PROJECT_CONFIG = {
-        "static": {
-            "path": "build",
-            "gtimgName": ''
-        },
-        "views": {
-            "path": ""
-        }
-    }
-
 
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
@@ -185,21 +162,6 @@ gulp.task('rev-fix', function() {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
 
-    /**
-     * 设置默认项目配置
-     * @type {Object}
-     */
-    var PROJECT_CONFIG = {
-        "static": {
-            "path": "build",
-            "gtimgName": _gtimgNameArgs
-        },
-        "views": {
-            "path": ""
-        }
-    }
-
-
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
@@ -210,7 +172,6 @@ gulp.task('rev-fix', function() {
 
     var manifest = gulp.src(_progressPash + "/hash-tag-map/rev-verionId.json");
     return gulp.src([_progressPash + '/' + PROJECT_CONFIG.static.output + '/**/*.{js,ejs,css}']) // Minify any CSS sources
-        .pipe(gulpSlash())
         .pipe(revReplace({
             manifest: manifest
         }))
@@ -222,20 +183,6 @@ gulp.task('rev-fix', function() {
 gulp.task('tmp-store', function() {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
 
-    /**
-     * 设置默认项目配置
-     * @type {Object}
-     */
-    var PROJECT_CONFIG = {
-        "static": {
-            "path": "build",
-            "gtimgName": ''
-        },
-        "views": {
-            "path": ""
-        }
-    }
-
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
@@ -244,7 +191,6 @@ gulp.task('tmp-store', function() {
     }
 
     return gulp.src([_progressPash + '/' + PROJECT_CONFIG.static.output + '/**/*']) // Minify any CSS sources
-        .pipe(gulpSlash())
         .pipe(gulp.dest(_progressPash + '/_tmp'))
 })
 
@@ -256,27 +202,11 @@ gulp.task('rev-views', function(cb) {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
 
-    /**
-     * 设置默认项目配置
-     * @type {Object}
-     */
-    var PROJECT_CONFIG = {
-        "static": {
-            "path": "build",
-            "gtimgName": _gtimgNameArgs
-        },
-        "views": {
-            "path": ""
-        }
-    }
-    console.log('=====最终处理=====');
-    console.log(_progressPash + '/ywork.config.json');
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
-        console.log(custome_project_config);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
-        console.log('当前配置');
     } catch (e) {
+        console.log(e);
         console.log('未制定配置文件,使用默认配置');
     }
 
@@ -284,7 +214,6 @@ gulp.task('rev-views', function(cb) {
 
 
     return gulp.src(_progressPash + PROJECT_CONFIG.views.path + "/**/*.html") // Minify any CSS sources
-        .pipe(gulpSlash())
         .pipe(revReplace({
             manifest: manifest
         }))
@@ -302,21 +231,6 @@ gulp.task('rev-fix-deps', function() {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
 
-    /**
-     * 设置默认项目配置
-     * @type {Object}
-     */
-    var PROJECT_CONFIG = {
-        "static": {
-            "path": "build",
-            "gtimgName": _gtimgNameArgs
-        },
-        "views": {
-            "path": ""
-        }
-    }
-
-    console.log(_progressPash + '/ywork.config.json');
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
@@ -327,7 +241,6 @@ gulp.task('rev-fix-deps', function() {
     var _thisCleanTask = execSync('cd ' + _progressPash + ' && del -f ' + PROJECT_CONFIG.static.output + '/**/*');
     var manifest = gulp.src(_progressPash + "/hash-tag-map/rev-verionId.json");
     return gulp.src([_progressPash + '/_tmp/**']) // Minify any CSS sources
-        .pipe(gulpSlash())
         .pipe(revReplace({
             manifest: manifest
         }))
@@ -341,38 +254,14 @@ gulp.task('rev-views-deps', function(cb) {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
 
-    /**
-     * 设置默认项目配置
-     * @type {Object}
-     */
-    var PROJECT_CONFIG = {
-        "static": {
-            "path": "build",
-            "gtimgName": _gtimgNameArgs
-        },
-        "views": {
-            "path": ""
-        }
-    }
-
-
-
     try {
-        console.log(_progressPash + '/ywork.config.json');
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
-        // console.log(PROJECT_CONFIG);
     } catch (e) {
         console.log('未制定配置文件,使用默认配置');
-        // console.log(PROJECT_CONFIG);
     }
-
-
     var manifest = gulp.src(_progressPash + "/hash-tag-map/rev-verionId.json");
-    console.log('模板路径是');
-    console.log(_progressPash + '/' + PROJECT_CONFIG.views.path + "/**/*.html");
     return gulp.src(_progressPash + '/' + PROJECT_CONFIG.views.path + "/**/*.html") // Minify any CSS sources
-        .pipe(gulpSlash())
         .pipe(revReplace({
             manifest: manifest
         }))
@@ -385,38 +274,18 @@ gulp.task('rev-views-deps', function(cb) {
 /**
  * ARS在发布模板的同时,顺便把node-config发布到同一目录(ars就不用重复建单)
  */
-
 gulp.task('copy-config', function() {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
 
-    /**
-     * 设置默认项目配置
-     * @type {Object}
-     */
-    var PROJECT_CONFIG = {
-        "static": {
-            "path": "build",
-            "gtimgName": _gtimgNameArgs
-        },
-        "views": {
-            "path": ""
-        }
-    }
-
     try {
-        console.log(_progressPash + '/ywork.config.json');
         var custome_project_config = require(_progressPash + '/ywork.config.json');
-        console.log(custome_project_config);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
-        // console.log(PROJECT_CONFIG);
     } catch (e) {
         console.log('未制定配置文件,使用默认配置');
-        // console.log(PROJECT_CONFIG);
     }
 
     console.log(chalk.red('[处理]复制node-config配置文件到 _previews/ 目录'));
     gulp.src(_progressPash + '/' + PROJECT_CONFIG.configs.path + '/**/*')
-        .pipe(gulpSlash())
         .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.configs.output))
 })

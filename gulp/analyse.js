@@ -2,8 +2,6 @@
  * 分析js中的依赖关系
  * Author: Luolei
  */
-var gulpSlash = require('gulp-slash'); //处理windows和unix文件夹斜杠
-var LOCAL_FOLDER = gulpSlash(__dirname).split('Yworkflow/')[0];
 
 var path = require('path');
 

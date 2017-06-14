@@ -4,36 +4,27 @@
 
 process.title = 'yworkcli';
 var YworkConfig = require('../.ywork');
-var gulpSlash = require('gulp-slash');
 var fs = require('fs');
 var chalk = require('chalk');
 var figlet = require('figlet');
 var exec = require('exec');
 var execSync = require('child_process').execSync;
 var path = require('path');
-var spawnSync = require('child_process').spawnSync;
-var dateFormat = require('dateformat');
 var _ = require('lodash');
+var request = require('request');
 
-var yworkflow = require('../gulpfile.js'),
-	optimist = require('optimist')
+var yworkflow = require('../gulpfile.js');
+var	optimist = require('optimist')
 	.usage(chalk.red('说明:Yworkcli是一个智能的构建前端项目的脚手架工具'))
 	.alias('h', 'help')
 	.alias('it', 'init')
 	.alias('v', 'version')
-	.alias('t', 'test')
-	.alias('pb', 'publish')
-	.alias('sp', 'sprite')
-	.alias('bd', 'build')
-	.alias('cl', 'clean')
-	.alias('gl', 'gulp')
 	.alias('w', 'where')
 	.describe(chalk.green('init'), ':生成配置文件模板')
 	.describe(chalk.green('publish'), ':生成静态资源和模板')
 
 var argv = optimist.argv;
 var text = argv._.join(' ');
-
 
 /**
  * 设置yworkcli默认参数
@@ -74,6 +65,18 @@ var YWORKFLOW_PATH = path.resolve(__dirname, '..');
 SHELL_PATH = SHELL_PATH.replace(/ /g, '\\ ');
 YWORKFLOW_PATH = YWORKFLOW_PATH.replace(/ /g, '\\ ');
 
+
+function checkNpmLatest(){
+	console.log('接口检查');
+	request('https://api.npms.io/v2/package/Yworkcli',function(err,res,body){
+		if(err){
+			console.log('err');
+		}
+	})
+}
+
+
+
 /**
  * 载入一些ywork的配置
  */
@@ -99,7 +102,6 @@ if (argv.where) {
  * @return {[type]}              [description]
  */
 if (argv.version) {
-	console.log(path.parse(__dirname + './index.js'));
 	var configFile = !!(argv['config']) ? argv['config'] : './ywork.config.json';
 	figlet(require('../package.json').version, function(err, data) {
 		if (err) {
@@ -111,9 +113,6 @@ if (argv.version) {
 		console.log(chalk.red('当前版本:'));
 		console.log(data);
 	});
-
-
-
 }
 
 
@@ -148,7 +147,6 @@ if (argv.init) {
 	var _LOGPATH = !!(argv['log']) ? argv['log'] : LOGPATH;
 	console.log('[Yworkcli]设置的日志路径是 \n' + path.join(_progressPath, _LOGPATH));
 	var SHELL_LOG_TASK = ' | tee -a ' + path.join(_progressPath, _LOGPATH);
-	var _echoDefault = JSON.stringify(defaults);
 	fs.writeFileSync(_progressPath + '/ywork.config.json', JSON.stringify(defaults, null, 4));
 }
 
@@ -159,17 +157,16 @@ if (argv.init) {
  */
 if (argv.clean) {
 	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH;
-
 	console.log('要处理的路径是' + _progressPath);
 	console.log('执行文件清理');
 	console.log(chalk.green('[shell] cd ' + YWORKFLOW_PATH + ' && del  -f  ' + _progressPath));
+
 	var toCleanPath = ['_prelease/', '_previews/', '_tmp/'];
 	var _cleanPathLength = toCleanPath.length;
 	for (var i = 0; i < _cleanPathLength; i++) {
 		var _thisPath = toCleanPath[i];
 		console.log('[清理]' + _progressPath + '/' + _thisPath);
 		var _thisCleanTask = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/' + _thisPath);
-		// console.log(_thisCleanTask.toString());
 	}
 }
 
@@ -180,58 +177,57 @@ if (argv.clean) {
  */
 if (argv.publish) {
 	var _taskStartTime = (new Date()).getTime();
-	console.log('[Yworkcli]----START----');
-
 	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH
-	var _skipReversion = !!(argv['skipV']) ? true : false;
+	var _skipReversion = !!(argv['skip']) ? true : false;
 	var _LOGPATH = !!(argv['log']) ? argv['log'] : LOGPATH;
-	console.log('[Yworkcli]设置的日志路径是 \n' + path.join(_progressPath, _LOGPATH));
-
 	var SHELL_LOG_TASK = ' | tee -a ' + path.join(_progressPath, _LOGPATH);
-
 
 	/**
 	 * 设置默认项目配置
 	 * @type {Object}
 	 */
-	var PROJECT_CONFIG = Object.assign({},defaults);
+	var PROJECT_CONFIG = Object.assign({}, defaults);
 
 	try {
-		console.log('[Yworkcli]当前读取的配置路径是');
-		console.log(_progressPath + '/ywork.config.json');
-		console.log('[Yworkcli]----CONTINUE----');
-		console.log('[Yworkcli]提示');
-		console.log('可在终端使用命令:\n  tail -f' + path.join(_progressPath, _LOGPATH) + '\n实时查看日志');
-		console.log('[Yworkcli]----PROGRESSING----');
+		console.log('[Yworkcli]读取配置文件');
+		console.log('  '+_progressPath + '/ywork.config.json');
 		var custome_project_config = require(_progressPath + '/ywork.config.json');
 		PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
 		console.log('当前配置是:\n' + JSON.stringify(PROJECT_CONFIG, null, 4));
 	} catch (e) {
-		console.log('未制定配置文件,使用默认配置');
+		console.log('当前文件夹未找到配置文件,请检查后重试');
 		console.log(e);
+		return false;
 	}
-
-
+	console.log('[Yworkcli]----START----');
+	console.log('[Yworkcli]设置的日志路径是\n  ' + path.join(_progressPath, _LOGPATH));
+	console.log('[Yworkcli]----CONTINUE----');
+	console.log('[Yworkcli]提示');
+	console.log('可在终端使用命令:\n  tail -f' + path.join(_progressPath, _LOGPATH) + '\n实时查看日志');
+	console.log('[Yworkcli]----PROGRESSING----');
 
 	/**
-	 * 为了避免文件混乱，默认清除上一次生成的_prelease 和 _tmp临时文件以及上一次的config文件
+	 * 为了避免文件混乱，默认清除上一次生成的文件
 	 */
 	var CleanTaskPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/' + PROJECT_CONFIG.static.output);
 	var CleanTConfigPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/' + PROJECT_CONFIG.configs.output);
 	var CleanTaskPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/_tmp');
 	var CelanTaskLog = execSync('cd ' + YWORKFLOW_PATH + '&& > ' + path.join(_progressPath, _LOGPATH));
+	
 	execSync('cd ' + YWORKFLOW_PATH + ' && gulp clean-css-sourcemap --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev --path ' + _progressPath + SHELL_LOG_TASK);
-	// 备份个初始的静态资源,做二次替换用
+	execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev --skipV ' + _skipReversion + ' --path ' + _progressPath  + SHELL_LOG_TASK);
+
+	// 备份初始的静态资源,做二次替换用
 	execSync('cd ' + YWORKFLOW_PATH + '&& gulp tmp-store --path ' + _progressPath + SHELL_LOG_TASK);
 	execSync('cd ' + YWORKFLOW_PATH + '&& gulp copy-hash-map --path ' + _progressPath + SHELL_LOG_TASK);
-	// 接下来进行二次替换
+
+	// 进行二次替换
 	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-build-all --path ' + _progressPath + SHELL_LOG_TASK);
+	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-build-all --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK);
 	execSync('cd ' + YWORKFLOW_PATH + '&& gulp deps-update-all --path ' + _progressPath + SHELL_LOG_TASK);
 	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix-deps --path ' + _progressPath + SHELL_LOG_TASK);
 	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views-deps --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-build-all --path ' + _progressPath + SHELL_LOG_TASK);
+	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-build-all --skipV ' + _skipReversion + '--path ' + _progressPath + SHELL_LOG_TASK);
 
 	// 若开启了combo,则进行combo处理
 	if (!!(PROJECT_CONFIG.combo.force)) {
@@ -251,56 +247,4 @@ if (argv.publish) {
 	var _taskUsedTime = (_taskEndTime - _taskStartTime) / 1000
 	console.log('[Yworkcli]任务耗时共计:' + _taskUsedTime + '秒');
 
-}
-
-/**
- * 生成出来的资源入库操作
- */
-
-/**
- * svn脚本操作
- * @param  {[type]} argv.build [description]
- * @return {[type]}            [description]
- */
-if (argv.svn) {
-	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH
-	console.log('svn项目路径是' + _progressPath);
-	//执行js编译
-	exec('cd ' + YWORKFLOW_PATH + '&& gulp svn --path ' + _progressPath, function(err, out, code) {
-		if (err instanceof Error)
-			throw err;
-		process.stdout.write(out);
-	});
-}
-
-
-/**
- * git脚本操作
- * @param  {[type]} argv.build [description]
- * @return {[type]}            [description]
- */
-if (argv.git) {
-	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH
-	console.log('git项目路径是' + _progressPath);
-	//执行js编译
-	exec('cd ' + YWORKFLOW_PATH + '&& gulp git --path ' + _progressPath, function(err, out, code) {
-		if (err instanceof Error)
-			throw err;
-		process.stdout.write(out);
-	});
-}
-
-/**
- * 显示yworkflow所调用的所有gulp任务
- * @param  {[type]} argv.gulp [description]
- * @return {[type]}           [description]
- */
-if (argv.gulp) {
-	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH
-	exec('cd ' + YWORKFLOW_PATH + '&& gulp help ', function(err, out, code) {
-		if (err instanceof Error)
-			console.log(err);
-		// process.stdout.write(out);
-		console.log(out);
-	});
 }

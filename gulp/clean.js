@@ -49,7 +49,6 @@ gulp.task('clean-css-sourcemap', function(cb) {
 	try {
 		var custome_project_config = require(_progressPash + '/ywork.config.json');
 		PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
-		console.log(PROJECT_CONFIG);
 	} catch (e) {
 		console.log(e);
 		console.log('未制定配置文件,使用默认配置');
