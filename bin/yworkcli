@@ -14,7 +14,7 @@ var _ = require('lodash');
 var request = require('request');
 
 var yworkflow = require('../gulpfile.js');
-var	optimist = require('optimist')
+var optimist = require('optimist')
 	.usage(chalk.red('说明:Yworkcli是一个智能的构建前端项目的脚手架工具'))
 	.alias('h', 'help')
 	.alias('it', 'init')
@@ -66,10 +66,10 @@ SHELL_PATH = SHELL_PATH.replace(/ /g, '\\ ');
 YWORKFLOW_PATH = YWORKFLOW_PATH.replace(/ /g, '\\ ');
 
 
-function checkNpmLatest(){
+function checkNpmLatest() {
 	console.log('接口检查');
-	request('https://api.npms.io/v2/package/Yworkcli',function(err,res,body){
-		if(err){
+	request('https://api.npms.io/v2/package/Yworkcli', function(err, res, body) {
+		if (err) {
 			console.log('err');
 		}
 	})
@@ -179,6 +179,7 @@ if (argv.publish) {
 	var _taskStartTime = (new Date()).getTime();
 	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH
 	var _skipReversion = !!(argv['skip']) ? true : false;
+	var _useHash = !!(argv['hash']) ? true : false;
 	var _LOGPATH = !!(argv['log']) ? argv['log'] : LOGPATH;
 	var SHELL_LOG_TASK = ' | tee -a ' + path.join(_progressPath, _LOGPATH);
 
@@ -190,7 +191,7 @@ if (argv.publish) {
 
 	try {
 		console.log('[Yworkcli]读取配置文件');
-		console.log('  '+_progressPath + '/ywork.config.json');
+		console.log('  ' + _progressPath + '/ywork.config.json');
 		var custome_project_config = require(_progressPath + '/ywork.config.json');
 		PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
 		console.log('当前配置是:\n' + JSON.stringify(PROJECT_CONFIG, null, 4));
@@ -213,32 +214,58 @@ if (argv.publish) {
 	var CleanTConfigPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/' + PROJECT_CONFIG.configs.output);
 	var CleanTaskPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/_tmp');
 	var CelanTaskLog = execSync('cd ' + YWORKFLOW_PATH + '&& > ' + path.join(_progressPath, _LOGPATH));
-	
+
+
+
 	execSync('cd ' + YWORKFLOW_PATH + ' && gulp clean-css-sourcemap --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev --skipV ' + _skipReversion + ' --path ' + _progressPath  + SHELL_LOG_TASK);
 
-	// 备份初始的静态资源,做二次替换用
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp tmp-store --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp copy-hash-map --path ' + _progressPath + SHELL_LOG_TASK);
+	if (_useHash) {
+		console.log('[Yworkcli]生成HASH版资源')
+		execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev-hash --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK);
 
-	// 进行二次替换
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-build-all --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp deps-update-all --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix-deps --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views-deps --path ' + _progressPath + SHELL_LOG_TASK);
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-build-all --skipV ' + _skipReversion + '--path ' + _progressPath + SHELL_LOG_TASK);
+		// 备份初始的静态资源,做二次替换用
+		// 进行二次替换
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK);
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views-deps  --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK);
 
-	// 若开启了combo,则进行combo处理
-	if (!!(PROJECT_CONFIG.combo.force)) {
-		execSync('cd ' + YWORKFLOW_PATH + '&& gulp preview-combo --useLogic --path ' + _progressPath + SHELL_LOG_TASK);
+		// 若开启了combo,则进行combo处理
+		if (!!(PROJECT_CONFIG.combo.force)) {
+			execSync('cd ' + YWORKFLOW_PATH + '&& gulp preview-combo --useLogic --path ' + _progressPath + SHELL_LOG_TASK);
+		}
+
+		// 复制配置文件
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp copy-config --path ' + _progressPath + SHELL_LOG_TASK);
+
+		// 第一次版本替换模板
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views  --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK);
+
+	} else {
+		console.log('[Yworkcli]生成递增数字ID版资源')
+		execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK);
+
+		// 备份初始的静态资源,做二次替换用
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp tmp-store --path ' + _progressPath + SHELL_LOG_TASK);
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp copy-hash-map --path ' + _progressPath + SHELL_LOG_TASK);
+
+		// 进行二次替换
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK);
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-build-all --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK);
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp deps-update-all --path ' + _progressPath + SHELL_LOG_TASK);
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix-deps --path ' + _progressPath + SHELL_LOG_TASK);
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views-deps --path ' + _progressPath + SHELL_LOG_TASK);
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-build-all --skipV ' + _skipReversion + '--path ' + _progressPath + SHELL_LOG_TASK);
+
+		// 若开启了combo,则进行combo处理
+		if (!!(PROJECT_CONFIG.combo.force)) {
+			execSync('cd ' + YWORKFLOW_PATH + '&& gulp preview-combo --useLogic --path ' + _progressPath + SHELL_LOG_TASK);
+		}
+
+		// 复制配置文件
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp copy-config --path ' + _progressPath + SHELL_LOG_TASK);
+
+		// 第一次版本替换模板
+		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK);
 	}
-
-	// 复制配置文件
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp copy-config --path ' + _progressPath + SHELL_LOG_TASK);
-
-	// 第一次版本替换模板
-	execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views --path ' + _progressPath + SHELL_LOG_TASK);
 
 	// 最后清理临时文件
 	var CleanTaskPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/_tmp');

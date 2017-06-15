@@ -14,7 +14,7 @@ var chalk = require('chalk'); // 美化日志
 var _ = require('lodash');
 
 var rename = require('gulp-rename')
-
+var rev = require('./plugins/rev');
 var RevAll = require('gulp-rev-custom-tag');
 var revReplace = require('gulp-rev-replace');
 var execSync = require('child_process').execSync;
@@ -42,6 +42,48 @@ var PROJECT_CONFIG = {
     }
 }
 
+/**
+ * 分析目标文件夹的hash值,根据hash-tag-map 进行处理
+ */
+gulp.task('rev-hash', function(cb) {
+    console.log('[Yworkcli]处理静态资源版本号 简化HASH流程');
+    var _skipReversion = (gutil.env.skipV === 'true') ? true : false;
+    var _progressPash = gutil.env.path ? gutil.env.path : '';
+    var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
+
+    try {
+        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
+    } catch (e) {
+        console.log('未制定配置文件,使用默认配置');
+    }
+
+    if (!!_skipReversion) {
+        console.log(chalk.green('[处理]版本号变化') + chalk.red('关闭'));
+    } else {
+        console.log(chalk.green('[处理]版本号变化') + chalk.blue('开启'));
+    }
+    var ignoredFiles = {};
+    gulp.src([
+            _progressPash + '/' + PROJECT_CONFIG.static.path + '/' + PROJECT_CONFIG.static.gtimgName + '/**',
+            '!' + _progressPash + '/' + PROJECT_CONFIG.static.path + '/**/*.map',
+            '!' + _progressPash + '/' + PROJECT_CONFIG.static.path + '/**/*.html'
+        ])
+        .pipe(rev({
+            separator:'.',
+            hashLength:5
+        }))
+        .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.static.output))
+        .pipe(rev.manifest('rev-manifest.json',{
+            separator:'.',
+            hashLength:5
+        }))
+        .pipe(sortJSON({
+            space: 2
+        }))
+        .pipe(gulp.dest(_progressPash + '/hash-tag-map'))
+    cb()
+});
 
 
 /**
@@ -49,7 +91,7 @@ var PROJECT_CONFIG = {
  */
 gulp.task('rev', function(cb) {
     console.log('[Yworkcli]处理静态资源版本号');
-    var _skipReversion = (gutil.env.skipV === true) ? true : false;
+    var _skipReversion = (gutil.env.skipV === 'true') ? true : false;
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
 
@@ -115,7 +157,7 @@ gulp.task('copy-hash-map', function(cb) {
  * @return {[type]}     [description]
  */
 gulp.task('rev-build-all', function(cb) {
-    var _skipReversion = !!(gutil.env.skipV) ? true : false;
+    var _skipReversion = (gutil.env.skipV === true) ? true : false;
     var _progressPash = gutil.env.path ? gutil.env.path : '';
 
     try {
@@ -158,10 +200,9 @@ gulp.task('rev-build-all', function(cb) {
  */
 
 gulp.task('rev-fix', function() {
-
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
-
+    var _sourceManifest = (gutil.env.hash === 'true') ? 'rev-manifest.json' : 'rev-verionId.json';
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
@@ -170,7 +211,7 @@ gulp.task('rev-fix', function() {
     }
 
 
-    var manifest = gulp.src(_progressPash + "/hash-tag-map/rev-verionId.json");
+    var manifest = gulp.src(_progressPash + "/hash-tag-map/" + _sourceManifest);
     return gulp.src([_progressPash + '/' + PROJECT_CONFIG.static.output + '/**/*.{js,ejs,css}']) // Minify any CSS sources
         .pipe(revReplace({
             manifest: manifest
@@ -201,7 +242,9 @@ gulp.task('tmp-store', function() {
 gulp.task('rev-views', function(cb) {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
-
+    var _sourceManifest = (gutil.env.hash === 'true') ? 'rev-manifest.json' : 'rev-verionId.json';
+    console.log(gutil.env.hash)
+    console.log('使用的是' + _sourceManifest) 
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
@@ -210,7 +253,7 @@ gulp.task('rev-views', function(cb) {
         console.log('未制定配置文件,使用默认配置');
     }
 
-    var manifest = gulp.src(_progressPash + "/hash-tag-map/rev-verionId.json");
+    var manifest = gulp.src(_progressPash + "/hash-tag-map/" + _sourceManifest);
 
 
     return gulp.src(_progressPash + PROJECT_CONFIG.views.path + "/**/*.html") // Minify any CSS sources
@@ -230,7 +273,7 @@ gulp.task('rev-views', function(cb) {
 gulp.task('rev-fix-deps', function() {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
-
+    var _sourceManifest = (gutil.env.hash === 'true') ? 'rev-manifest.json' : 'rev-verionId.json';
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
@@ -239,7 +282,7 @@ gulp.task('rev-fix-deps', function() {
     }
     _progressPash = _progressPash.replace(/ /g, '\\ ');
     var _thisCleanTask = execSync('cd ' + _progressPash + ' && del -f ' + PROJECT_CONFIG.static.output + '/**/*');
-    var manifest = gulp.src(_progressPash + "/hash-tag-map/rev-verionId.json");
+    var manifest = gulp.src(_progressPash + "/hash-tag-map/" + _sourceManifest);
     return gulp.src([_progressPash + '/_tmp/**']) // Minify any CSS sources
         .pipe(revReplace({
             manifest: manifest
@@ -253,14 +296,14 @@ gulp.task('rev-fix-deps', function() {
 gulp.task('rev-views-deps', function(cb) {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
-
+    var _sourceManifest = (gutil.env.hash === 'true') ? 'rev-manifest.json' : 'rev-verionId.json';
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未制定配置文件,使用默认配置');
     }
-    var manifest = gulp.src(_progressPash + "/hash-tag-map/rev-verionId.json");
+    var manifest = gulp.src(_progressPash + "/hash-tag-map/" + _sourceManifest);
     return gulp.src(_progressPash + '/' + PROJECT_CONFIG.views.path + "/**/*.html") // Minify any CSS sources
         .pipe(revReplace({
             manifest: manifest
