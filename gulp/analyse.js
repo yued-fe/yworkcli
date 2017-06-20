@@ -90,8 +90,6 @@ gulp.task('deps-update-all', function(cb) {
 
     for (var i = 0; i < _updatdeAllTypeFiles.length; i++) {
         var _lastId = _currentIdMap[_updatdeAllTypeFiles[i]];
-
-
         var _lastFileNameTag = _lastId.split('/').pop().split('.').slice(-3);
         var _startVerNum = _lastFileNameTag[0],
             _secVerNum = _lastFileNameTag[1],

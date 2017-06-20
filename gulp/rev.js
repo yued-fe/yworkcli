@@ -243,8 +243,6 @@ gulp.task('rev-views', function(cb) {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
     var _sourceManifest = (gutil.env.hash === 'true') ? 'rev-manifest.json' : 'rev-verionId.json';
-    console.log(gutil.env.hash)
-    console.log('使用的是' + _sourceManifest) 
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
