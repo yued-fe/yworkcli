@@ -179,7 +179,6 @@ if (argv.publish) {
 	var _taskStartTime = (new Date()).getTime();
 	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH
 	var _skipReversion = !!(argv['skip']) ? true : false;
-	var _useHash = !!(argv['hash']) ? true : false;
 	var _LOGPATH = !!(argv['log']) ? argv['log'] : LOGPATH;
 	var SHELL_LOG_TASK = ' | tee -a ' + path.join(_progressPath, _LOGPATH);
 
@@ -200,6 +199,7 @@ if (argv.publish) {
 		console.log(e);
 		return false;
 	}
+	var _useHash = (!!(argv['hash']) || PROJECT_CONFIG.hash == true) ? true : false;
 	console.log('[Yworkcli]----START----');
 	console.log('[Yworkcli]设置的日志路径是\n  ' + path.join(_progressPath, _LOGPATH));
 	console.log('[Yworkcli]----CONTINUE----');

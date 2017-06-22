@@ -4,6 +4,7 @@
 
 ## 更新
 
+* 2017.06.22 支持ywork.config.json中直接配置hash开关
 * 2017.06.15 增加--hash参数,支持生成纯hash版本
 * 2017.06.14 增加--skip参数,支持不升级版本号发布
 * 2017.06.01 publish默认清理源css中的sourcemap以防冲突
