@@ -4,6 +4,7 @@
 
 ## 更新
 
+* 2017.06.25 publish的时候会自动调用yworkflow生成新的文件, 需要--yconfig传入项目下的yconfig名
 * 2017.06.22 支持ywork.config.json中直接配置hash开关
 * 2017.06.15 增加--hash参数,支持生成纯hash版本
 * 2017.06.14 增加--skip参数,支持不升级版本号发布

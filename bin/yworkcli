@@ -4,6 +4,7 @@
 
 process.title = 'yworkcli';
 var YworkConfig = require('../.ywork');
+var yworkflowExe = require('yworkflow');
 var fs = require('fs');
 var chalk = require('chalk');
 var figlet = require('figlet');
@@ -178,6 +179,7 @@ if (argv.clean) {
 if (argv.publish) {
 	var _taskStartTime = (new Date()).getTime();
 	var _progressPath = !!(argv['path']) ? argv['path'] : SHELL_PATH
+	_progressPath = path.resolve(__dirname, _progressPath);
 	var _skipReversion = !!(argv['skip']) ? true : false;
 	var _LOGPATH = !!(argv['log']) ? argv['log'] : LOGPATH;
 	var SHELL_LOG_TASK = ' | tee -a ' + path.join(_progressPath, _LOGPATH);
@@ -207,6 +209,20 @@ if (argv.publish) {
 	console.log('可在终端使用命令:\n  tail -f' + path.join(_progressPath, _LOGPATH) + '\n实时查看日志');
 	console.log('[Yworkcli]----PROGRESSING----');
 
+	try {
+		var yconfig = argv.yconfig;
+		if(!yconfig) {
+			console.error('yconfig must be set');
+			throw new Error('yconfig must be set');
+			return;
+		}
+		console.log(new Buffer(yworkflowExe({path: path.resolve(__dirname, _progressPath + '/' + yconfig)})).toString());
+		console.log('yworkflow compile done.');
+	} catch(e) {
+		console.error('yworkflow 出现错误');
+		console.error(e);
+		return;
+	}
 	/**
 	 * 为了避免文件混乱，默认清除上一次生成的文件
 	 */
@@ -214,7 +230,6 @@ if (argv.publish) {
 	var CleanTConfigPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/' + PROJECT_CONFIG.configs.output);
 	var CleanTaskPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/_tmp');
 	var CelanTaskLog = execSync('cd ' + YWORKFLOW_PATH + '&& > ' + path.join(_progressPath, _LOGPATH));
-
 
 
 	execSync('cd ' + YWORKFLOW_PATH + ' && gulp clean-css-sourcemap --path ' + _progressPath + SHELL_LOG_TASK);
@@ -273,5 +288,4 @@ if (argv.publish) {
 	var _taskEndTime = (new Date()).getTime();
 	var _taskUsedTime = (_taskEndTime - _taskStartTime) / 1000
 	console.log('[Yworkcli]任务耗时共计:' + _taskUsedTime + '秒');
-
 }

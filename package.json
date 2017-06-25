@@ -1,6 +1,6 @@
 {
   "name": "Yworkcli",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "author": {
     "name": "@foru17 <meleilei@gmail.com>"
   },
@@ -73,6 +73,7 @@
     "vinyl-file": "^3.0.0",
     "vinyl-ftp": "^0.6.0",
     "vinyl-paths": "^2.1.0",
-    "yargs": "^8.0.2"
+    "yargs": "^8.0.2",
+    "yworkflow": "^3.0.5"
   }
 }
