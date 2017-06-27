@@ -213,9 +213,24 @@ gulp.task('rev-fix', function() {
 
     var manifest = gulp.src(_progressPash + "/hash-tag-map/" + _sourceManifest);
     return gulp.src([_progressPash + '/' + PROJECT_CONFIG.static.output + '/**/*.{js,ejs,css}']) // Minify any CSS sources
-        .pipe(revReplace({
+        .pipe(revReplace(_.extend({}, {
             manifest: manifest
-        }))
+        }, gutil.env.deps === 'true' ? {
+            modifyUnreved: function (filename) {
+                // 让js不要被替换掉
+                if(path.extname(filename) === '.js') {
+                    return '';
+                }
+                return filename;
+            },
+            modifyReved: function (filename) {
+                // 让js不要被替换掉
+                if(path.extname(filename) === '.js') {
+                    return '';
+                }
+                return filename;
+            }
+        } : {})))
         .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.static.output))
 });
 
@@ -303,9 +318,24 @@ gulp.task('rev-views-deps', function(cb) {
     }
     var manifest = gulp.src(_progressPash + "/hash-tag-map/" + _sourceManifest);
     return gulp.src(_progressPash + '/' + PROJECT_CONFIG.views.path + "/**/*.html") // Minify any CSS sources
-        .pipe(revReplace({
+        .pipe(revReplace(_.extend({}, {
             manifest: manifest
-        }))
+        }, gutil.env.deps === 'true' ? {
+            modifyUnreved: function (filename) {
+                // 让js不要被替换掉
+                if(path.extname(filename) === '.js') {
+                    return '';
+                }
+                return filename;
+            },
+            modifyReved: function (filename) {
+                // 让js不要被替换掉
+                if(path.extname(filename) === '.js') {
+                    return '';
+                }
+                return filename;
+            }
+        } : {})))
         .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.views.output))
     cb()
 });

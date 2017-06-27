@@ -1,6 +1,6 @@
 {
   "name": "Yworkcli",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "author": {
     "name": "@foru17 <meleilei@gmail.com>"
   },
@@ -14,7 +14,7 @@
     "url": "git+https://github.com/yued-fe/yworkcli.git"
   },
   "scripts": {
-    "test": ""
+    "test": "node test/index.js"
   },
   "bugs": {
     "url": "https://github.com/yued-fe/yworkcli/issues"
@@ -40,6 +40,7 @@
     "dateformat": "^2.0.0",
     "exec": "^0.2.1",
     "figlet": "^1.2.0",
+    "glob": "^7.1.2",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^4.0.0",
     "gulp-clean-css": "^3.4.1",
