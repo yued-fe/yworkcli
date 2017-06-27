@@ -4,6 +4,7 @@
 
 ## 更新
 
+* 2017.06.27 新增--deps的参数, 不给js进行md5, 并且lbf.config新增deps和alias
 * 2017.06.25 publish的时候会自动调用yworkflow生成新的文件, 需要--yconfig传入项目下的yconfig名
 * 2017.06.22 支持ywork.config.json中直接配置hash开关
 * 2017.06.15 增加--hash参数,支持生成纯hash版本
@@ -70,3 +71,20 @@
 #### 生成HASH资源版本
 
 执行`yworkcli --publish --hash`，即可生成hash版本,默认hash长度为5位。
+
+#### 自带执行yworkflow功能
+执行`yworkcli --publish --yconfig ${proj.yconfig}`
+
+#### 在--hash里面新加参数--deps,生成deps和alias功能
+带deps的参数, 会在hash-tag-map生成一个deps.json和alias.json
+同时views里面需要新增如下配置
+```javascript
+LBF.config({
+    deps: <%= lbf.deps %>
+});
+LBF.config({
+    alias: <%= lbf.alias %>
+});
+```
+在完成之后<%= lbf.deps %>和<%= lbf.alias %>会被替换成对应的json
+执行`yworkcli --publish --yconfig ${proj.yconfig} --hash --deps`
