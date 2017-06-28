@@ -4,6 +4,7 @@
 
 ## 更新
 
+* 2017.06.28 增加--build以调用yworkflow编译任务,默认关闭
 * 2017.06.28 不再强制--yconfig参数,默认任务目录寻找.yconfig后缀配置文件
 * 2017.06.27 新增--deps的参数, 不给js进行md5, 并且lbf.config新增deps和alias
 * 2017.06.25 publish的时候会自动调用yworkflow生成新的文件, 需要--yconfig传入项目下的yconfig名
