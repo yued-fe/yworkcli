@@ -51,7 +51,7 @@ gulp.task('clean-css-sourcemap', function(cb) {
 		PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
 	} catch (e) {
 		console.log(e);
-		console.log('未制定配置文件,使用默认配置');
+		console.log('未指定配置文件,使用默认配置');
 	}
 	gulp.src([
 			_progressPash + '/' + PROJECT_CONFIG.static.path + '/' + PROJECT_CONFIG.static.gtimgName + '/**/*.css'

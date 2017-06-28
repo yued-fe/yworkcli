@@ -1,6 +1,6 @@
 {
   "name": "Yworkcli",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "author": {
     "name": "@foru17 <meleilei@gmail.com>"
   },
@@ -40,6 +40,7 @@
     "dateformat": "^2.0.0",
     "exec": "^0.2.1",
     "figlet": "^1.2.0",
+    "find-config": "^1.0.0",
     "glob": "^7.1.2",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^4.0.0",
@@ -75,6 +76,6 @@
     "vinyl-ftp": "^0.6.0",
     "vinyl-paths": "^2.1.0",
     "yargs": "^8.0.2",
-    "yworkflow": "^3.0.5"
+    "yworkflow": "^3.0.6"
   }
 }

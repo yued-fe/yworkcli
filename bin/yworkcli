@@ -13,7 +13,7 @@ var execSync = require('child_process').execSync;
 var path = require('path');
 var _ = require('lodash');
 var request = require('request');
-
+var glob = require( 'glob' );  
 var yworkflow = require('../gulpfile.js');
 var optimist = require('optimist')
 	.usage(chalk.red('说明:Yworkcli是一个智能的构建前端项目的脚手架工具'))
@@ -75,8 +75,6 @@ function checkNpmLatest() {
 		}
 	})
 }
-
-
 
 /**
  * 载入一些ywork的配置
@@ -197,7 +195,7 @@ if (argv.publish) {
 		PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
 		console.log('当前配置是:\n' + JSON.stringify(PROJECT_CONFIG, null, 4));
 	} catch (e) {
-		console.log('当前文件夹未找到配置文件,请检查后重试');
+		console.log('[错误]当前文件夹未找到ywork.config.json配置文件,请检查');
 		console.log(e);
 		return false;
 	}
@@ -206,18 +204,26 @@ if (argv.publish) {
 	console.log('[Yworkcli]设置的日志路径是\n  ' + path.join(_progressPath, _LOGPATH));
 	console.log('[Yworkcli]----CONTINUE----');
 	console.log('[Yworkcli]提示');
-	console.log('可在终端使用命令:\n  tail -f' + path.join(_progressPath, _LOGPATH) + '\n实时查看日志');
+	console.log('可在终端使用命令:\n  tail -f ' + path.join(_progressPath, _LOGPATH) + '\n实时查看日志');
 	console.log('[Yworkcli]----PROGRESSING----');
-
 	try {
-		var yconfig = argv.yconfig;
+		console.log('=======================================')
+		console.log('[Yworkflow Compile] Start.');
+		var yconfig = argv.yconfig ? path.resolve(__dirname, _progressPath + '/' + yconfig) : (glob.sync(path.resolve(__dirname, _progressPath + '/*.yconfig'))[0] || glob.sync(path.resolve(__dirname, _progressPath + '/.yconfig'))[0]) ;
+		console.log('  '+yconfig)
 		if(!yconfig) {
 			console.error('yconfig must be set');
 			throw new Error('yconfig must be set');
 			return;
 		}
-		console.log(new Buffer(yworkflowExe({path: path.resolve(__dirname, _progressPath + '/' + yconfig)})).toString());
-		console.log('yworkflow compile done.');
+		var yworkStartTime = (new Date()).getTime();
+		console.log(new Buffer(yworkflowExe({path: yconfig})).toString());
+		var yworkEndTime = (new Date()).getTime();
+		var _taskUsedTime = (yworkEndTime - yworkStartTime) / 1000
+		console.log('[Yworkflow Compile]任务耗时共计:' + _taskUsedTime + '秒');
+		console.log('[Yworkflow Compile] done.');
+		console.log('=======================================')
+
 	} catch(e) {
 		console.error('yworkflow 出现错误');
 		console.error(e);

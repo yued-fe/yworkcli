@@ -55,7 +55,7 @@ gulp.task('rev-hash', function(cb) {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
-        console.log('未制定配置文件,使用默认配置');
+        console.log('未指定配置文件,使用默认配置');
     }
 
     if (!!_skipReversion) {
@@ -99,7 +99,7 @@ gulp.task('rev', function(cb) {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
-        console.log('未制定配置文件,使用默认配置');
+        console.log('未指定配置文件,使用默认配置');
     }
 
     if (!!_skipReversion) {
@@ -164,7 +164,7 @@ gulp.task('rev-build-all', function(cb) {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
-        console.log('未制定配置文件,使用默认配置');
+        console.log('未指定配置文件,使用默认配置');
     }
 
     /**
@@ -207,7 +207,7 @@ gulp.task('rev-fix', function() {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
-        console.log('未制定配置文件,使用默认配置');
+        console.log('未指定配置文件,使用默认配置');
     }
 
 
@@ -243,7 +243,7 @@ gulp.task('tmp-store', function() {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
-        console.log('未制定配置文件,使用默认配置');
+        console.log('未指定配置文件,使用默认配置');
     }
 
     return gulp.src([_progressPash + '/' + PROJECT_CONFIG.static.output + '/**/*']) // Minify any CSS sources
@@ -263,7 +263,7 @@ gulp.task('rev-views', function(cb) {
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log(e);
-        console.log('未制定配置文件,使用默认配置');
+        console.log('未指定配置文件,使用默认配置');
     }
 
     var manifest = gulp.src(_progressPash + "/hash-tag-map/" + _sourceManifest);
@@ -291,7 +291,7 @@ gulp.task('rev-fix-deps', function() {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
-        console.log('未制定配置文件,使用默认配置');
+        console.log('未指定配置文件,使用默认配置');
     }
     _progressPash = _progressPash.replace(/ /g, '\\ ');
     var _thisCleanTask = execSync('cd ' + _progressPash + ' && del -f ' + PROJECT_CONFIG.static.output + '/**/*');
@@ -314,7 +314,7 @@ gulp.task('rev-views-deps', function(cb) {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
-        console.log('未制定配置文件,使用默认配置');
+        console.log('未指定配置文件,使用默认配置');
     }
     var manifest = gulp.src(_progressPash + "/hash-tag-map/" + _sourceManifest);
     return gulp.src(_progressPash + '/' + PROJECT_CONFIG.views.path + "/**/*.html") // Minify any CSS sources
@@ -347,13 +347,12 @@ gulp.task('rev-views-deps', function(cb) {
  */
 gulp.task('copy-config', function() {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
-    var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
 
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
-        console.log('未制定配置文件,使用默认配置');
+        console.log('未指定配置文件,使用默认配置');
     }
 
     console.log(chalk.red('[处理]复制node-config配置文件到 _previews/ 目录'));
