@@ -285,7 +285,7 @@ if (argv.publish) {
 		execSync('cd ' + YWORKFLOW_PATH + '&& gulp copy-hash-map --path ' + _progressPath + SHELL_LOG_TASK);
 
 		// 进行二次替换
-		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK);
+		// execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK);
 		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-build-all --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK);
 		execSync('cd ' + YWORKFLOW_PATH + '&& gulp deps-update-all --path ' + _progressPath + SHELL_LOG_TASK);
 		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix-deps --path ' + _progressPath + SHELL_LOG_TASK);
