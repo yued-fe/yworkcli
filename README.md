@@ -93,8 +93,8 @@ LBF.config({
 执行`yworkcli --publish --yconfig ${proj.yconfig} --hash --deps`
 
 #### 新增deps:replaceMD5方法
-因为--deps方式,将页面的js都用版本js替换了,但是部分js还是需要替换,所以在ywork.config.json新增了一个deps:replaceMD5的配置, 使用的是glob格式语法.
-```json
+因为--deps方式,将页面的js都不使用带版本的js替换了,但是部分js还是需要替换,所以在ywork.config.json新增了一个deps:replaceMD5的配置, 使用的是glob格式语法.
+```
 {
     "static":{
         "path":"build/activity", //生成的项目资源路径
