@@ -1,6 +1,6 @@
 {
   "name": "Yworkcli",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "author": {
     "name": "@foru17 <meleilei@gmail.com>"
   },
@@ -63,6 +63,7 @@
     "json-stable-stringify": "^1.0.1",
     "lodash": "^4.13.1",
     "madge": "^1.0.0",
+    "minimatch": "^3.0.4",
     "modify-filename": "^1.1.0",
     "morgan": "^1.6.1",
     "object-assign": "^4.1.1",

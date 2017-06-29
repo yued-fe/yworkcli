@@ -41,7 +41,7 @@ gulp.task('deps', function () {
     var globalAlias = generateAlias(envPath, gtimgName);
 
     // 将cache中的html,获取依赖并注入
-    return gulp.src(envPath + '/.cache/views/**/*.html', { base: envPath + '/.cache' })
+    return gulp.src(envPath + '/dist/views/**/*.html', { base: envPath + '/dist' })
         .pipe(replaceDepsAndAlias(globalDeps, globalAlias))
         .pipe(gulp.dest(envPath + '/dist'));
 });

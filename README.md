@@ -4,6 +4,7 @@
 
 ## 更新
 
+* 2017.06.29 修复--yconfig传参获取不到的bug, 以及新增yworkflow的配置deps->replaceMD5的配置
 * 2017.06.28 增加--build以调用yworkflow编译任务,默认关闭
 * 2017.06.28 不再强制--yconfig参数,默认任务目录寻找.yconfig后缀配置文件
 * 2017.06.27 新增--deps的参数, 不给js进行md5, 并且lbf.config新增deps和alias
@@ -90,3 +91,36 @@ LBF.config({
 ```
 在完成之后<%= lbf.deps %>和<%= lbf.alias %>会被替换成对应的json
 执行`yworkcli --publish --yconfig ${proj.yconfig} --hash --deps`
+
+#### 新增deps:replaceMD5方法
+因为--deps方式,将页面的js都用版本js替换了,但是部分js还是需要替换,所以在ywork.config.json新增了一个deps:replaceMD5的配置, 使用的是glob格式语法.
+```json
+{
+    "static":{
+        "path":"build/activity", //生成的项目资源路径
+        "gtimgName":"activity", //对应的gtimg地址资源路径
+        "output":"_prelease" //本地输出的编译后路径
+    },
+    "views":{
+        "path":"src/views", //匹配的模板文件路径
+        "output":"_previews"//最终生成的目录文件路劲
+    },
+    "configs":{
+        "path":"src/node--config",//框架机config路径
+        "output":"_prelease"//框架集config发布路径
+    },
+    "combo": {
+        "force": true,//是否开启combo
+        "gtimgTag":"<%= staticConf.domains.static %>",// 静态资源环境配置
+        "gtimgNamePrepend":"readnovel", // combo串单独资源路由前置路径
+        "uri":"<%= staticConf.domains.static %>/c/=",//combo的线上URL接口
+        "logicCondition": "envType == \"pro\" || envType == \"oa\"" //开启combo的条件,注意需要转义双引号
+    },
+    "deps": {
+        "replaceMD5": ["!**/*.js", "**/sprite.js", "**/sprite.*.js"]
+    }
+}
+```
+
+
+
