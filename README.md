@@ -117,7 +117,7 @@ LBF.config({
         "logicCondition": "envType == \"pro\" || envType == \"oa\"" //开启combo的条件,注意需要转义双引号
     },
     "deps": {
-        "replaceMD5": ["!**/*.js", "**/sprite.js", "**/sprite.*.js"]
+        "replaceMD5": ["!**/*.js", "**/sprite.js", "**/sprite.*.js"] // 除了sprite.js和sprite.*.js以外,所有的js都不参与MD5的替换
     }
 }
 ```
