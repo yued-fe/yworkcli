@@ -8,7 +8,6 @@ var path = require('path');
 var YWORKFLOW_PATH = path.resolve(__dirname, '..');
 
 var gulp = require('gulp');
-var gulp = require('gulp');
 var del = require('del');
 var chalk = require('chalk'); // 美化日志
 var _ = require('lodash');
@@ -22,6 +21,7 @@ var execSync = require('child_process').execSync;
 var stringify = require('json-stable-stringify');
 var sortJSON = require('gulp-json-sort').default;
 
+var globMatch = require('../utils/globmatch');
 var paths = {
     sass: 'src/static/**/*.scss',
     build: 'build',
@@ -39,6 +39,9 @@ var PROJECT_CONFIG = {
     },
     "views": {
         "path": ""
+    },
+    "deps": {
+        "replaceMD5": ['*']
     }
 }
 
@@ -217,18 +220,16 @@ gulp.task('rev-fix', function() {
             manifest: manifest
         }, gutil.env.deps === 'true' ? {
             modifyUnreved: function (filename) {
-                // 让js不要被替换掉
-                if(path.extname(filename) === '.js') {
-                    return '';
+                if(globMatch(filename, PROJECT_CONFIG.deps.replaceMD5)) {
+                    return filename;
                 }
-                return filename;
+                return '';
             },
             modifyReved: function (filename) {
-                // 让js不要被替换掉
-                if(path.extname(filename) === '.js') {
-                    return '';
+                if(globMatch(filename, PROJECT_CONFIG.deps.replaceMD5)) {
+                    return filename;
                 }
-                return filename;
+                return '';
             }
         } : {})))
         .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.static.output))
@@ -322,18 +323,16 @@ gulp.task('rev-views-deps', function(cb) {
             manifest: manifest
         }, gutil.env.deps === 'true' ? {
             modifyUnreved: function (filename) {
-                // 让js不要被替换掉
-                if(path.extname(filename) === '.js') {
-                    return '';
+                if(globMatch(filename, PROJECT_CONFIG.deps.replaceMD5)) {
+                    return filename;
                 }
-                return filename;
+                return '';
             },
             modifyReved: function (filename) {
-                // 让js不要被替换掉
-                if(path.extname(filename) === '.js') {
-                    return '';
+                if(globMatch(filename, PROJECT_CONFIG.deps.replaceMD5)) {
+                    return filename;
                 }
-                return filename;
+                return '';
             }
         } : {})))
         .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.views.output))

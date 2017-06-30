@@ -212,7 +212,7 @@ if (argv.publish) {
 		try {
 			console.log('=======================================')
 			console.log('[Yworkflow Compile] Start.');
-			var yconfig = argv.yconfig ? path.resolve(__dirname, _progressPath + '/' + yconfig) : (glob.sync(path.resolve(__dirname, _progressPath + '/*.yconfig'))[0] || glob.sync(path.resolve(__dirname, _progressPath + '/.yconfig'))[0]);
+			var yconfig = argv.yconfig ? path.resolve(__dirname, _progressPath + '/' + argv.yconfig) : (glob.sync(path.resolve(__dirname, _progressPath + '/*.yconfig'))[0] || glob.sync(path.resolve(__dirname, _progressPath + '/.yconfig'))[0]);
 			console.log('  ' + yconfig)
 			if (!yconfig) {
 				console.error('yconfig must be set');
