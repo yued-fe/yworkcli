@@ -23,6 +23,16 @@ var gutil = require('gulp-util');
 var globMatch = require('../../utils/globmatch');
 var grep = require('../../utils/grep');
 
+/**
+ * @module StaticReference
+ * @param baseDir { String } 基础的url root
+ * @param uri { String } 基于baseDir 的uri
+ * @param contents 内容 utf-8
+ * @param store reference to Store
+ * @param exclude 在计算deps的时候,排除掉的文件名
+ * @param ignoreReplace 在计算hash的时候,排除替换的文件名
+ * @constructor
+ */
 function StaticReference(baseDir, uri, contents, store, exclude, ignoreReplace) {
     this.baseDir = baseDir;
     this.exclude = exclude;
@@ -169,9 +179,7 @@ RefStore.prototype.getByUri = function (uri) {
     }
     
     var filePath = path.resolve(this.baseDir, uri);
-    var contents = '';
-    // 判断file的类型,非text file不读内容
-    contents = fs.readFileSync(filePath, 'utf-8');
+    var contents = fs.readFileSync(filePath, 'utf-8');
     
     var ref = this.store[uri] = new StaticReference(this.baseDir, uri, contents, this, this.exclude, this.ignoreReplace);
     ref.init();
@@ -252,11 +260,8 @@ exports = module.exports = function (options) {
         var sortedHashes = {};
         var hashesKeys = Object.keys(hashes).sort();
         hashesKeys.forEach(function (singleHash) {
-            // js/book/a.js => .js
-            var ext = path.extname(singleHash);
-            // => js/book/a.129df.js
-            var rs = singleHash.slice(0, singleHash.lastIndexOf(ext)) + '.' + hashes[singleHash] + ext;
-            sortedHashes[singleHash] = rs;
+            // js/book/a.js => js/book/a.129df.js
+            sortedHashes[singleHash] = replaceHashExtname(singleHash, hashes[singleHash]);
         });
         
         for(var i = 0, len = hashesKeys.length; i < len; i++) {
