@@ -241,28 +241,25 @@ if (argv.publish) {
 	var CleanTaskPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/' + PROJECT_CONFIG.static.output);
 	var CleanTConfigPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/' + PROJECT_CONFIG.configs.output);
 	var CleanTaskPublishEND = execSync('cd ' + YWORKFLOW_PATH + ' && del -f ' + _progressPath + '/_tmp');
-	var CelanTaskLog = execSync('cd ' + YWORKFLOW_PATH + '&& > ' + path.join(_progressPath, _LOGPATH));
+	var CleanTaskLog = execSync('cd ' + YWORKFLOW_PATH + '&& > ' + path.join(_progressPath, _LOGPATH));
 
 
 	execSync('cd ' + YWORKFLOW_PATH + ' && gulp clean-css-sourcemap --path ' + _progressPath + SHELL_LOG_TASK);
 
 	if (_useHash) {
-		console.log('[Yworkcli]生成HASH版资源')
-		console.log(execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev-hash --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK).toString());
 
 		if (!!argv['deps']) {
-			// 备份初始的静态资源,做二次替换用
-			// 进行二次替换
-			console.log(new Buffer(execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix --deps true --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK)).toString());
+		    console.log('[Yworkcli]生成HASH版资源')
+		    console.log('[Yworkcli]生成依赖资源')
+		    console.log(execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev-hash --deps true --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK).toString());
 			console.log(new Buffer(execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views-deps  --deps true --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK)).toString());
 			// 1. 生成deps.json和alias.json
 			// 2. 在views里面注入deps和alias
 			console.log(new Buffer(execSync('cd ' + YWORKFLOW_PATH + '&& gulp deps --path ' + _progressPath + ' --gtimgName ' + PROJECT_CONFIG.static.gtimgName)).toString());
 		} else {
-			// 进行二次替换
-			console.log(new Buffer(execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-fix --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK)).toString());
+		    console.log('[Yworkcli]生成HASH版资源')
+		    console.log(execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev-hash --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK).toString());
 			console.log(new Buffer(execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views-deps  --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK)).toString());
-			// 1. 生成deps.json和alias.json
 		}
 
 		// 若开启了combo,则进行combo处理
@@ -272,9 +269,6 @@ if (argv.publish) {
 
 		// 复制配置文件
 		execSync('cd ' + YWORKFLOW_PATH + '&& gulp copy-config --path ' + _progressPath + SHELL_LOG_TASK);
-
-		// 第一次版本替换模板
-		execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views  --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK);
 
 	} else {
 		console.log('[Yworkcli]生成递增数字ID版资源')

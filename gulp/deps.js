@@ -2,13 +2,13 @@
  * Created by patrickliu on 2017/6/26.
  */
 
-const gulp = require('gulp');
-const gutil = require('gulp-util');
-const { execSync } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-const utilDeps = require('../utils/deps');
-const through = require('through2');
+var gulp = require('gulp');
+var gutil = require('gulp-util');
+var execSync = require('child_process').execSync;
+var path = require('path');
+var fs = require('fs');
+var utilDeps = require('../utils/deps');
+var through = require('through2');
 
 
 function generateDeps(envPath, gtimgName) {

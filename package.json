@@ -38,6 +38,7 @@
   "dependencies": {
     "chalk": "^1.1.1",
     "dateformat": "^2.0.0",
+    "end-of-stream": "^1.4.0",
     "exec": "^0.2.1",
     "figlet": "^1.2.0",
     "find-config": "^1.0.0",
@@ -45,6 +46,7 @@
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^4.0.0",
     "gulp-clean-css": "^3.4.1",
+    "gulp-filter": "^2.0.2",
     "gulp-folders": "^1.1.0",
     "gulp-header": "^1.7.1",
     "gulp-json-sort": "^1.0.0",
