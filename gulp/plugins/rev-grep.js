@@ -102,8 +102,7 @@ StaticReference.prototype.notify = function () {
             var depHash = store.getHash(deps[i].uri);
             if(depHash) {
                 if(!globMatch(deps[i].uri, ignoreReplace)) {
-                    var extname = path.extname(deps[i].uri);
-                    var rs = deps[i].uri.slice(0, deps[i].uri.lastIndexOf(extname)) + '.' + depHash + extname;
+                    var rs = replaceHashExtname(deps[i].uri, depHash);
                     hashContents = hashContents.replace(new RegExp(escapeRegExp(deps[i].uri), 'g'), rs);
                 }
             }
@@ -117,9 +116,8 @@ StaticReference.prototype.notify = function () {
         this.hash = md5ed;
         
         if(this.file) {
-            var extname = path.extname(this.file.path);
             this.file.contents = new Buffer(this.hashContents);
-            this.file.path = '' + this.file.path.slice(0, this.file.path.lastIndexOf(extname)) + '.' + this.hash + extname;
+            this.file.path = replaceHashExtname(this.file.path, this.hash);
         }
 
         for(var i = 0, len = waitings.length; i < len; i++) {
@@ -198,6 +196,11 @@ function calcMd5(file){
     var md5 = crypto.createHash('md5');
     md5.update(file, 'utf8');
     return  md5.digest('hex').slice(0, 5);
+}
+
+function replaceHashExtname (filePath, hash) {
+    var extname = path.extname(filePath);
+    return filePath.slice(0, filePath.lastIndexOf(extname)) + '.' + hash + extname;
 }
 
 function stringStream(filename, string) {
