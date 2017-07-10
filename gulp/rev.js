@@ -14,8 +14,11 @@ var _ = require('lodash');
 
 var rename = require('gulp-rename')
 var rev = require('./plugins/rev');
+var revGrep = require('./plugins/rev-grep');
 var RevAll = require('gulp-rev-custom-tag');
+var gulpFilter = require('gulp-filter');
 var revReplace = require('gulp-rev-replace');
+var eos = require('end-of-stream');
 var execSync = require('child_process').execSync;
 
 var stringify = require('json-stable-stringify');
@@ -53,6 +56,7 @@ gulp.task('rev-hash', function(cb) {
     var _skipReversion = (gutil.env.skipV === 'true') ? true : false;
     var _progressPash = gutil.env.path ? gutil.env.path : '';
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
+    var _deps = gutil.env.deps ? (!!gutil.env.deps) : false;
 
     try {
         var custome_project_config = require(_progressPash + '/ywork.config.json');
@@ -67,25 +71,34 @@ gulp.task('rev-hash', function(cb) {
         console.log(chalk.green('[处理]版本号变化') + chalk.blue('开启'));
     }
     var ignoredFiles = {};
-    gulp.src([
+    var filterManifestJson = gulpFilter(function(file) {
+        // 过滤掉manifest.json
+        return !(/manifest\.json$/.test(file.path));
+    });
+    var st1 = gulp.src([
             _progressPash + '/' + PROJECT_CONFIG.static.path + '/' + PROJECT_CONFIG.static.gtimgName + '/**',
             '!' + _progressPash + '/' + PROJECT_CONFIG.static.path + '/**/*.map',
             '!' + _progressPash + '/' + PROJECT_CONFIG.static.path + '/**/*.html'
         ])
-        .pipe(rev({
-            separator:'.',
-            hashLength:5
-        }))
-        .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.static.output))
-        .pipe(rev.manifest('rev-manifest.json',{
-            separator:'.',
-            hashLength:5
-        }))
-        .pipe(sortJSON({
-            space: 2
-        }))
-        .pipe(gulp.dest(_progressPash + '/hash-tag-map'))
-    cb()
+        .pipe(revGrep(_.extend({
+            manifest: 'rev-manifest.json',
+            baseDir: _progressPash + '/' + PROJECT_CONFIG.static.path + '/' + PROJECT_CONFIG.static.gtimgName+ '/',
+            exclude: [
+                '**/.map/**/*.map',
+                '**/.map/**/*.*.map',
+                '**/*.html',
+                '**/*.*.html'
+            ]
+        }, _deps ? { ignoreReplace: ['**/*.js']} : {})))
+        .pipe(filterManifestJson)
+        .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.static.output));
+    
+    eos(st1, function () {
+        eos(filterManifestJson.restore({ end: true})
+            .pipe(gulp.dest(_progressPash + '/hash-tag-map/')), function () {
+            cb();
+        });
+    });
 });
 
 
