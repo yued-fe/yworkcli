@@ -46,6 +46,7 @@ function StaticReference(baseDir, uri, contents, store, exclude, ignoreReplace) 
     this.hashContents = contents;
     this.file = '';
     this.hash = '';
+    this.isBinaryFile = false;
 }
 
 StaticReference.prototype.init = function () {
@@ -108,9 +109,11 @@ StaticReference.prototype.notify = function () {
         var ignoreReplace = this.ignoreReplace || [];
         var hashContents = this.contents;
         var waitings = this.waitings;
+        var isBinaryFile = this.isBinaryFile;
+        
         for(var i = 0, len = deps.length; i < len; i++) {
             var depHash = store.getHash(deps[i].uri);
-            if(depHash) {
+            if(depHash && !isBinaryFile) {
                 if(!globMatch(deps[i].uri, ignoreReplace)) {
                     var rs = replaceHashExtname(deps[i].uri, depHash);
                     hashContents = hashContents.replace(new RegExp(escapeRegExp(deps[i].uri), 'g'), rs);
@@ -139,6 +142,7 @@ StaticReference.prototype.notify = function () {
         };
     }
 };
+
 // 被inform之后,将remains--
 StaticReference.prototype.beInformedBy = function (uri) {
     var deps = this.deps;
@@ -170,6 +174,8 @@ var RefStore = function(baseDir, exclude, ignoreReplace) {
 RefStore.prototype.setStreamFile = function (uri, file) {
     var ref = this.getByUri(uri);
     ref.file = file;
+    ref.isBinaryFile = is_binary_file(file);
+    ref.isBinaryFile ? (ref.contents = file.contents) : (ref.contents = String(file.contents));
     return ref;
 }
 
@@ -178,10 +184,7 @@ RefStore.prototype.getByUri = function (uri) {
         return this.store[uri];
     }
     
-    var filePath = path.resolve(this.baseDir, uri);
-    var contents = fs.readFileSync(filePath, 'utf-8');
-    
-    var ref = this.store[uri] = new StaticReference(this.baseDir, uri, contents, this, this.exclude, this.ignoreReplace);
+    var ref = this.store[uri] = new StaticReference(this.baseDir, uri, '', this, this.exclude, this.ignoreReplace);
     ref.init();
     return ref;
     
@@ -224,6 +227,18 @@ function stringStream(filename, string) {
     return src;
 }
 
+var is_binary_file = function (file) {
+
+  var length = (file.contents.length > 50) ? 50 : file.contents.length;
+  for (var i = 0; i < length; i++) {
+    if (file.contents[i] === 0) {
+      return true;
+    }
+  }
+  return false;
+
+};
+
 /**
  * @param options { baseDir, exclude, manifest }
  * @type {module.exports}
@@ -246,7 +261,7 @@ exports = module.exports = function (options) {
         // 获取uri
         var base = options.baseDir;
         var relUri = path.relative(base, file.path);
-        refStore.setStreamFile(relUri, file);
+        var ref = refStore.setStreamFile(relUri, file);
         cb();
     }, function (cb) {
         
