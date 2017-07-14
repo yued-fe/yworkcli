@@ -4,6 +4,7 @@
 
 ## 更新
 
+* 2017.07.14 修复grep语法问题
 * 2017.07.10 修复了生成md5码潜在的bug, 保证了md5的完全正确性.
 * 2017.06.29 修复--yconfig传参获取不到的bug, 以及新增yworkflow的配置deps->replaceMD5的配置
 * 2017.06.28 增加--build以调用yworkflow编译任务,默认关闭

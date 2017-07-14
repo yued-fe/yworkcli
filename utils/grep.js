@@ -9,7 +9,7 @@ exports = module.exports = function (dir, pattern, exclude) {
    
     exclude = exclude || [];
     // 找出dir目录下的所有内容包含pattern的文件名
-    return filter(dir, new Buffer(execSync('cd ' + dir + ' && find ./ -type f | xargs grep "' + pattern + '" | awk -F \':\' \'{print $1}\' | uniq ')).toString(), exclude, pattern);
+    return filter(dir, new Buffer(execSync('cd ' + dir + ' && find ./ -type f | xargs grep \'' + pattern + '\' | awk -F \':\' \'{print $1}\' | uniq ')).toString(), exclude, pattern);
 };
 
 function filter(dir, str, exclude, pattern) {
