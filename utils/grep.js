@@ -2,15 +2,30 @@
  * Created by patrickliu on 2017/7/5.
  */
 var execSync = require('child_process').execSync;
+var exec = require('child_process').exec;
 var globmatch = require('./globmatch');
 var path = require('path');
 
-exports = module.exports = function (dir, pattern, exclude) {
+var grepSync = function (dir, pattern, exclude) {
    
     exclude = exclude || [];
     // 找出dir目录下的所有内容包含pattern的文件名
     return filter(dir, new Buffer(execSync('cd ' + dir + ' && find ./ -type f -print0 | xargs -0 grep -l \'' + pattern + '\' | uniq ')).toString(), exclude, pattern);
 };
+
+var grep = function (dir, pattern, exclude) {
+    
+    return new Promise(function (resolve, reject) {
+        exec('cd ' + dir + ' && find ./ -type f -print0 | xargs -0 grep -l \'' + pattern + '\' | uniq ',
+            function (err, stdout, stderr) {
+                if(err) {
+                    reject('');
+                    return;
+                }
+                resolve(filter(dir, stdout, exclude, pattern));
+            });
+    });
+}
 
 function filter(dir, str, exclude, pattern) {
     var arr = str.split(require('os').EOL);
@@ -24,3 +39,7 @@ function filter(dir, str, exclude, pattern) {
     }
     return arr;
 }
+
+exports = module.exports;
+exports.grep = grep;
+exports.grepSync = grepSync;
