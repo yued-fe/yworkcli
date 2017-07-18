@@ -21,7 +21,7 @@ var crypto = require('crypto');
 var through = require('through2');
 var gutil = require('gulp-util');
 var globMatch = require('../../utils/globmatch');
-var grep = require('../../utils/grep');
+var grep = require('../../utils/grep').grep;
 
 /**
  * @module StaticReference
@@ -49,13 +49,16 @@ function StaticReference(baseDir, uri, contents, store, exclude, ignoreReplace) 
     this.isBinaryFile = false;
 }
 
-StaticReference.prototype.init = function () {
-
-    var waitings = grep(this.baseDir, this.uri, this.exclude);
-    if(waitings.length === 0 || waitings === '') {
-        return;
+StaticReference.prototype.init = function (waitings) {
+    
+    var file = this.store.files[this.uri];
+    this.file = file;
+    this.isBinaryFile = is_binary_file(file);
+    this.isBinaryFile ? (this.contents = file.contents) : (this.contents = String(file.contents));
+    
+    if(waitings) {
+        this.addWaitings(waitings);
     }
-    this.addWaitings(waitings);
 };
 StaticReference.prototype.addWaitings = function (waitings) {
     var added = [];
@@ -168,16 +171,69 @@ var RefStore = function(baseDir, exclude, ignoreReplace) {
     this.exclude = exclude;
     this.ignoreReplace = ignoreReplace;
     this.store = {};
+    this.waitings = {};
     this.hash = {};
+    this.files = {};
+    this.prefetchWaitings = [];
+};
+
+RefStore.prototype.addPrefetchWaiting = function (uri) {
+    this.prefetchWaitings.push(uri);
+};
+
+RefStore.prototype.doPrefetchWaitings = function () {
+    var prefetchWaitings = this.prefetchWaitings;
+    var result = [];
+    var that = this;
+    
+    return new Promise(function (resolve, reject) {
+
+        var MAX_CONCURRENCY = 100;
+        var recycleTimes = Math.ceil(prefetchWaitings.length / 100);
+
+        function prefetch(i) {
+            console.log('第' + i + '次prefetch');
+            var self = arguments.callee;
+            if(i === recycleTimes) {
+                console.log('prefetch 结束');
+                for(var i = 0, len = prefetchWaitings.length; i < len; i++) {
+                    that.waitings[prefetchWaitings[i]] = result[i];
+                }
+                console.log(that.waitings);
+                resolve();
+                return;
+            }
+
+            var arr = [];
+            for(var j = i * MAX_CONCURRENCY; j < (i + 1) * MAX_CONCURRENCY && j < prefetchWaitings.length; j++) {
+                arr.push(grep(that.baseDir, prefetchWaitings[j], that.exclude));
+            }
+
+            Promise.all(arr)
+                .then(function (rs) {
+                    result = result.concat(rs);
+                    self(++i);
+                });
+        }
+
+        prefetch(0);
+    });
 };
 
 RefStore.prototype.setStreamFile = function (uri, file) {
-    var ref = this.getByUri(uri);
-    ref.file = file;
-    ref.isBinaryFile = is_binary_file(file);
-    ref.isBinaryFile ? (ref.contents = file.contents) : (ref.contents = String(file.contents));
-    return ref;
+    
+    this.files[uri] = file;
+    
 }
+
+RefStore.prototype.initRef = function (uri) {
+    if(this.store[uri]) {
+        return this.store[uri];
+    }
+
+    var ref = this.store[uri] = new StaticReference(this.baseDir, uri, '', this, this.exclude, this.ignoreReplace);
+    return ref;
+};
 
 RefStore.prototype.getByUri = function (uri) {
     if(this.store[uri]) {
@@ -185,7 +241,7 @@ RefStore.prototype.getByUri = function (uri) {
     }
     
     var ref = this.store[uri] = new StaticReference(this.baseDir, uri, '', this, this.exclude, this.ignoreReplace);
-    ref.init();
+    ref.init(this.waitings[uri]);
     return ref;
     
 };
@@ -261,35 +317,63 @@ exports = module.exports = function (options) {
         // 获取uri
         var base = options.baseDir;
         var relUri = path.relative(base, file.path);
-        var ref = refStore.setStreamFile(relUri, file);
+        refStore.setStreamFile(relUri, file);
+        refStore.addPrefetchWaiting(relUri);
         cb();
+        
     }, function (cb) {
-        
-        var stores = refStore.getAllStore();
-        var uris = Object.keys(stores);
-        for(var i = 0, len = uris.length; i < len; i++) {
-            stores[uris[i]].notify();
-        }
-        // 输出 this.hash
-        var hashes = refStore.getAllHash();
-        var sortedHashes = {};
-        var hashesKeys = Object.keys(hashes).sort();
-        hashesKeys.forEach(function (singleHash) {
-            // js/book/a.js => js/book/a.129df.js
-            sortedHashes[singleHash] = replaceHashExtname(singleHash, hashes[singleHash]);
-        });
-        
-        for(var i = 0, len = hashesKeys.length; i < len; i++) {
-            this.push(stores[hashesKeys[i]].file);
-        }
-        
-        this.push(new gutil.File({
-            cwd: '',
-            base: '',
-            path: options.manifest,
-            contents: new Buffer(JSON.stringify(sortedHashes, null, 4))
-        }));
-        cb();
+       
+        var that = this;
+        var st = new Date();
+        console.log('do before prefetch ' + st);
+        refStore.doPrefetchWaitings()
+            .then(function (value) {
+                var end = new Date();
+                console.log('do after prefetch ' + end);
+                console.log('consume time is ' + (end - st));
+                var waitings = refStore.waitings;
+                var uris = Object.keys(waitings);
+                // new ref 
+                for(var i = 0, len = uris.length; i < len; i++) {
+                    var ref = refStore.initRef(uris[i]);
+                }
+                // init ref
+                for(var i = 0, len = uris.length; i < len; i++) {
+                    var ref = refStore.getByUri(uris[i]);
+                    ref.init(waitings[uris[i]]);
+                }
+
+                var stores = refStore.getAllStore();
+                uris = Object.keys(stores);
+                // 初始化
+                for(var i = 0, len = uris.length; i < len; i++) {
+                    stores[uris[i]].notify();
+                }
+
+                // 输出 this.hash
+                var hashes = refStore.getAllHash();
+                var sortedHashes = {};
+                var hashesKeys = Object.keys(hashes).sort();
+                hashesKeys.forEach(function (singleHash) {
+                    // js/book/a.js => js/book/a.129df.js
+                    sortedHashes[singleHash] = replaceHashExtname(singleHash, hashes[singleHash]);
+                });
+
+                for(var i = 0, len = hashesKeys.length; i < len; i++) {
+                    that.push(stores[hashesKeys[i]].file);
+                }
+                
+                that.push(new gutil.File({
+                    cwd: '',
+                    base: '',
+                    path: options.manifest,
+                    contents: new Buffer(JSON.stringify(sortedHashes, null, 4))
+                }));
+                cb();
+            })
+            .catch(function (e) {
+                console.log(e);
+            });
     });
 };
 
