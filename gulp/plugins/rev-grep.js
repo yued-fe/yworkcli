@@ -133,15 +133,15 @@ StaticReference.prototype.notify = function () {
         
         store.setHash(uri, md5ed);
         this.hash = md5ed;
-        
+
+        if(!isBinaryFile && replaceSelf) {
+            hashContents = hashContents.replace(new RegExp(escapeRegExp(uri), 'g'), replaceHashExtname(uri, this.hash));
+            this.hashContents = hashContents;
+        }
+
         if(this.file) {
             this.file.contents = new Buffer(this.hashContents);
             this.file.path = replaceHashExtname(this.file.path, this.hash);
-        }
-
-        if(!isBinaryFile && replaceSelf) {
-            hashContents = hashContents.split(uri).join(replaceHashExtname(uri, this.hash));
-            this.hashContents = hashContents;
         }
 
         for(var i = 0, len = waitings.length; i < len; i++) {
