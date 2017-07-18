@@ -89,7 +89,7 @@ gulp.task('rev-hash', function(cb) {
                 '**/*.html',
                 '**/*.*.html'
             ]
-        }, _deps ? { ignoreReplace: ['**/*.js']} : {})))
+        }, _deps ? { ignoreReplace: ['**/*.js'] } : { replaceSelf: true })))
         .pipe(filterManifestJson)
         .pipe(gulp.dest(_progressPash + '/' + PROJECT_CONFIG.static.output));
     

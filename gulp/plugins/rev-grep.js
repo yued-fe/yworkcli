@@ -33,10 +33,11 @@ var grep = require('../../utils/grep').grep;
  * @param ignoreReplace 在计算hash的时候,排除替换的文件名
  * @constructor
  */
-function StaticReference(baseDir, uri, contents, store, exclude, ignoreReplace) {
+function StaticReference(baseDir, uri, contents, store, exclude, ignoreReplace, replaceSelf) {
     this.baseDir = baseDir;
     this.exclude = exclude;
     this.ignoreReplace = ignoreReplace;
+    this.replaceSelf = replaceSelf;
     this.uri = uri;
     this.waitings = [];
     this.deps = [];
@@ -113,6 +114,7 @@ StaticReference.prototype.notify = function () {
         var hashContents = this.contents;
         var waitings = this.waitings;
         var isBinaryFile = this.isBinaryFile;
+        var replaceSelf = this.replaceSelf;
         
         for(var i = 0, len = deps.length; i < len; i++) {
             var depHash = store.getHash(deps[i].uri);
@@ -125,15 +127,21 @@ StaticReference.prototype.notify = function () {
         }
         // 保存replace之后的hashContents
         this.hashContents = hashContents;
-        
-        var md5ed = calcMd5(hashContents);
+
         // 计算hash
+        var md5ed = calcMd5(hashContents);
+        
         store.setHash(uri, md5ed);
         this.hash = md5ed;
         
         if(this.file) {
             this.file.contents = new Buffer(this.hashContents);
             this.file.path = replaceHashExtname(this.file.path, this.hash);
+        }
+
+        if(!isBinaryFile && replaceSelf) {
+            hashContents = hashContents.split(uri).join(replaceHashExtname(uri, this.hash));
+            this.hashContents = hashContents;
         }
 
         for(var i = 0, len = waitings.length; i < len; i++) {
@@ -166,10 +174,11 @@ StaticReference.prototype.beInformedBy = function (uri) {
 };
 
 // store hash and StaticReference Object
-var RefStore = function(baseDir, exclude, ignoreReplace) {
+var RefStore = function(baseDir, exclude, ignoreReplace, replaceSelf) {
     this.baseDir = baseDir;
     this.exclude = exclude;
     this.ignoreReplace = ignoreReplace;
+    this.replaceSelf = replaceSelf || false;
     this.store = {};
     this.waitings = {};
     this.hash = {};
@@ -231,7 +240,7 @@ RefStore.prototype.initRef = function (uri) {
         return this.store[uri];
     }
 
-    var ref = this.store[uri] = new StaticReference(this.baseDir, uri, '', this, this.exclude, this.ignoreReplace);
+    var ref = this.store[uri] = new StaticReference(this.baseDir, uri, '', this, this.exclude, this.ignoreReplace, this.replaceSelf);
     return ref;
 };
 
@@ -240,7 +249,7 @@ RefStore.prototype.getByUri = function (uri) {
         return this.store[uri];
     }
     
-    var ref = this.store[uri] = new StaticReference(this.baseDir, uri, '', this, this.exclude, this.ignoreReplace);
+    var ref = this.store[uri] = new StaticReference(this.baseDir, uri, '', this, this.exclude, this.ignoreReplace, this.replaceSelf);
     ref.init(this.waitings[uri]);
     return ref;
     
@@ -301,7 +310,7 @@ var is_binary_file = function (file) {
  */
 exports = module.exports = function (options) {
     
-    var refStore = new RefStore(options.baseDir, options.exclude, options.ignoreReplace);
+    var refStore = new RefStore(options.baseDir, options.exclude, options.ignoreReplace, options.replaceSelf);
 
     return through.obj(function(file, enc, cb) {
 
