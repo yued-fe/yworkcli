@@ -3,8 +3,10 @@
  */
 var execSync = require('child_process').execSync;
 var exec = require('child_process').exec;
+var execFile = require('child_process').execFile;
 var globmatch = require('./globmatch');
 var path = require('path');
+var fs = require('fs');
 
 var grepSync = function (dir, pattern, exclude) {
    
@@ -16,16 +18,38 @@ var grepSync = function (dir, pattern, exclude) {
 var grep = function (dir, pattern, exclude) {
     
     return new Promise(function (resolve, reject) {
-        exec('cd ' + dir + ' && find ./ -type f -print0 | xargs -0 grep -l \'' + pattern + '\' | uniq ',
+        exec('grep -R -I -l ' + pattern + ' ' +  dir + ' | uniq',
             function (err, stdout, stderr) {
                 if(err) {
-                    reject('');
+                    console.log(err);
+                    resolve('');
                     return;
                 }
                 resolve(filter(dir, stdout, exclude, pattern));
             });
     });
 }
+
+var grepBatch = function (dir, arr, exclude) {
+
+    var shellStr = '';
+
+    for(var i = 0, len = arr.length; i < len; i++) {
+        var singlePattern = arr[i];
+        shellStr += 'rs' + i + '=`grep -R -I -l \'' + singlePattern + '\' ' + dir + ' | uniq`\r\n';
+    }
+
+    fs.writeFileSync(path.resolve(__dirname, '.batch.sh'), shellStr, 'utf-8');
+    return new Promise(function (resolve, reject) {
+        exec('sh ' + path.resolve(__dirname, '.batch.sh'), function (err, stdout, stderr) {
+            if(err) {
+                resolve('');
+                return;
+            }
+            resolve(filter(dir, stdout, exclude, ''))
+        });
+    });
+};
 
 function filter(dir, str, exclude, pattern) {
     var arr = str.split(require('os').EOL);
@@ -42,4 +66,5 @@ function filter(dir, str, exclude, pattern) {
 
 exports = module.exports;
 exports.grep = grep;
+exports.grepBatch = grepBatch;
 exports.grepSync = grepSync;

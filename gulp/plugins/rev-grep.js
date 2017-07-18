@@ -56,7 +56,7 @@ StaticReference.prototype.init = function (waitings) {
     this.isBinaryFile = is_binary_file(file);
     this.isBinaryFile ? (this.contents = file.contents) : (this.contents = String(file.contents));
     
-    if(!waitings) {
+    if(waitings) {
         this.addWaitings(waitings);
     }
 };
@@ -183,20 +183,40 @@ RefStore.prototype.addPrefetchWaiting = function (uri) {
 
 RefStore.prototype.doPrefetchWaitings = function () {
     var prefetchWaitings = this.prefetchWaitings;
-    var promiseArr = [];
+    var result = [];
     var that = this;
     
     return new Promise(function (resolve, reject) {
-        for(var i = 0, len = prefetchWaitings.length; i < len; i++) {
-            promiseArr.push(grep(that.baseDir, prefetchWaitings[i], that.exclude));
-        }
-        Promise.all(promiseArr)
-            .then(function (rs) {
+
+        var MAX_CONCURRENCY = 100;
+        var recycleTimes = Math.ceil(prefetchWaitings.length / 100);
+
+        function prefetch(i) {
+            console.log('第' + i + '次prefetch');
+            var self = arguments.callee;
+            if(i === recycleTimes) {
+                console.log('prefetch 结束');
                 for(var i = 0, len = prefetchWaitings.length; i < len; i++) {
-                    that.waitings[prefetchWaitings[i]] = rs[i];
+                    that.waitings[prefetchWaitings[i]] = result[i];
                 }
+                console.log(that.waitings);
                 resolve();
-            });
+                return;
+            }
+
+            var arr = [];
+            for(var j = i * MAX_CONCURRENCY; j < (i + 1) * MAX_CONCURRENCY && j < prefetchWaitings.length; j++) {
+                arr.push(grep(that.baseDir, prefetchWaitings[j], that.exclude));
+            }
+
+            Promise.all(arr)
+                .then(function (rs) {
+                    result = result.concat(rs);
+                    self(++i);
+                });
+        }
+
+        prefetch(0);
     });
 };
 
@@ -297,7 +317,6 @@ exports = module.exports = function (options) {
         // 获取uri
         var base = options.baseDir;
         var relUri = path.relative(base, file.path);
-        
         refStore.setStreamFile(relUri, file);
         refStore.addPrefetchWaiting(relUri);
         cb();
@@ -305,8 +324,13 @@ exports = module.exports = function (options) {
     }, function (cb) {
        
         var that = this;
+        var st = new Date();
+        console.log('do before prefetch ' + st);
         refStore.doPrefetchWaitings()
             .then(function (value) {
+                var end = new Date();
+                console.log('do after prefetch ' + end);
+                console.log('consume time is ' + (end - st));
                 var waitings = refStore.waitings;
                 var uris = Object.keys(waitings);
                 // new ref 
@@ -347,7 +371,8 @@ exports = module.exports = function (options) {
                 }));
                 cb();
             })
-            .catch(function () {
+            .catch(function (e) {
+                console.log(e);
             });
     });
 };
