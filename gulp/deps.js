@@ -37,13 +37,14 @@ gulp.task('deps', function () {
 // passed by command line argv
     var envPath = gutil.env.path || './';
     var gtimgName = gutil.env.gtimgName || '';
+    var viewsOutput = gutil.env.viewsOutput || '';
     var globalDeps = generateDeps(envPath, gtimgName);
     var globalAlias = generateAlias(envPath, gtimgName);
 
     // 将cache中的html,获取依赖并注入
-    return gulp.src(envPath + '/dist/views/**/*.html', { base: envPath + '/dist' })
+    return gulp.src(envPath + '/' + viewsOutput + '/**/*.html', { base: envPath + '/' + viewsOutput })
         .pipe(replaceDepsAndAlias(globalDeps, globalAlias))
-        .pipe(gulp.dest(envPath + '/dist'));
+        .pipe(gulp.dest(envPath + '/' + viewsOutput));
 });
 
 function replaceDepsAndAlias(globalDeps, globalAlias) {

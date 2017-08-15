@@ -255,7 +255,7 @@ if (argv.publish) {
 			console.log(new Buffer(execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views-deps  --deps true --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK)).toString());
 			// 1. 生成deps.json和alias.json
 			// 2. 在views里面注入deps和alias
-			console.log(new Buffer(execSync('cd ' + YWORKFLOW_PATH + '&& gulp deps --path ' + _progressPath + ' --gtimgName ' + PROJECT_CONFIG.static.gtimgName)).toString());
+			console.log(new Buffer(execSync('cd ' + YWORKFLOW_PATH + '&& gulp deps --path ' + _progressPath + ' --gtimgName ' + PROJECT_CONFIG.static.gtimgName + ' --viewsOutput ' + PROJECT_CONFIG.views.output)).toString());
 		} else {
 		    console.log('[Yworkcli]生成HASH版资源')
 		    console.log(execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev-hash --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK).toString());
