@@ -21,7 +21,7 @@ exports = module.exports = function (dir, paths) {
     var arr = glob.sync(dir + '/.cache/' + paths + '/**/*.js', { nodir: true }) || [],
         depsMap = {};
     
-    for(var i = 0, len = arr.length - 1; i < len; i++) {
+    for(var i = 0, len = arr.length; i < len; i++) {
         var singleJs = arr[i];
         var relPath = path.relative(dir + '/.cache/', singleJs);
         depsMap[relPath] = getMatch(fs.readFileSync(singleJs, 'utf-8'));
