@@ -371,12 +371,19 @@ exports = module.exports = function (options) {
                 for(var i = 0, len = hashesKeys.length; i < len; i++) {
                     that.push(stores[hashesKeys[i]].file);
                 }
+
+                // 将sortedHashes进行倒序排
+                var sortedKeys = Object.keys(sortedHashes).sort().reverse();
+                var newSortedHashes = {};
+                sortedKeys.forEach(function (value, key) {
+                    newSortedHashes[value] = sortedHashes[value];
+                });
                 
                 that.push(new gutil.File({
                     cwd: '',
                     base: '',
                     path: options.manifest,
-                    contents: new Buffer(JSON.stringify(sortedHashes, null, 4))
+                    contents: new Buffer(JSON.stringify(newSortedHashes, null, 4))
                 }));
                 cb();
             })
