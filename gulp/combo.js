@@ -26,7 +26,7 @@ var removeEmptyLines = require('gulp-remove-empty-lines');
 
 var dateFormat = require('dateformat');
 var gutil = require('gulp-util');
-
+var config = require('../utils/config');
 /**
  * 执行combo,将预览版的html中的css和js url地址进行combo拼接
  */
@@ -61,7 +61,7 @@ gulp.task('preview-combo', function() {
     }
 
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log(e);

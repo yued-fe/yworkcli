@@ -25,6 +25,7 @@ var stringify = require('json-stable-stringify');
 var sortJSON = require('gulp-json-sort').default;
 
 var globMatch = require('../utils/globmatch');
+var config = require('../utils/config');
 var paths = {
     sass: 'src/static/**/*.scss',
     build: 'build',
@@ -59,7 +60,7 @@ gulp.task('rev-hash', function(cb) {
     var _deps = gutil.env.deps ? (!!gutil.env.deps) : false;
 
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未指定配置文件,使用默认配置');
@@ -112,7 +113,7 @@ gulp.task('rev', function(cb) {
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
 
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未指定配置文件,使用默认配置');
@@ -177,7 +178,7 @@ gulp.task('rev-build-all', function(cb) {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
 
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未指定配置文件,使用默认配置');
@@ -220,7 +221,7 @@ gulp.task('rev-fix', function() {
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
     var _sourceManifest = (gutil.env.hash === 'true') ? 'rev-manifest.json' : 'rev-verionId.json';
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未指定配置文件,使用默认配置');
@@ -254,7 +255,7 @@ gulp.task('tmp-store', function() {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
 
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未指定配置文件,使用默认配置');
@@ -273,7 +274,7 @@ gulp.task('rev-views', function(cb) {
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
     var _sourceManifest = (gutil.env.hash === 'true') ? 'rev-manifest.json' : 'rev-verionId.json';
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log(e);
@@ -302,7 +303,7 @@ gulp.task('rev-fix-deps', function() {
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
     var _sourceManifest = (gutil.env.hash === 'true') ? 'rev-manifest.json' : 'rev-verionId.json';
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未指定配置文件,使用默认配置');
@@ -325,7 +326,7 @@ gulp.task('rev-views-deps', function(cb) {
     var _gtimgNameArgs = gutil.env.gtimg ? gutil.env.gtimg : 'qdm';
     var _sourceManifest = (gutil.env.hash === 'true') ? 'rev-manifest.json' : 'rev-verionId.json';
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未指定配置文件,使用默认配置');
@@ -361,7 +362,7 @@ gulp.task('copy-config', function() {
     var _progressPash = gutil.env.path ? gutil.env.path : '';
 
     try {
-        var custome_project_config = require(_progressPash + '/ywork.config.json');
+        var custome_project_config = config(_progressPash);
         PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
     } catch (e) {
         console.log('未指定配置文件,使用默认配置');

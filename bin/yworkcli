@@ -11,6 +11,7 @@ var figlet = require('figlet');
 var exec = require('exec');
 var execSync = require('child_process').execSync;
 var path = require('path');
+var config = require('../utils/config');
 var _ = require('lodash');
 var request = require('request');
 var glob = require('glob');
@@ -101,7 +102,6 @@ if (argv.where) {
  * @return {[type]}              [description]
  */
 if (argv.version) {
-	var configFile = !!(argv['config']) ? argv['config'] : './ywork.config.json';
 	figlet(require('../package.json').version, function(err, data) {
 		if (err) {
 			console.log('Something went wrong...');
@@ -191,8 +191,8 @@ if (argv.publish) {
 
 	try {
 		console.log('[Yworkcli]读取配置文件');
-		console.log('  ' + _progressPath + '/ywork.config.json');
-		var custome_project_config = require(_progressPath + '/ywork.config.json');
+		console.log('  ' + _progressPath + '/ywork.config.json|js');
+		var custome_project_config = config(_progressPath);
 		PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
 		console.log('当前配置是:\n' + JSON.stringify(PROJECT_CONFIG, null, 4));
 	} catch (e) {
@@ -260,6 +260,11 @@ if (argv.publish) {
 		    console.log('[Yworkcli]生成HASH版资源')
 		    console.log(execSync('cd ' + YWORKFLOW_PATH + ' && gulp rev-hash --skipV ' + _skipReversion + ' --path ' + _progressPath + SHELL_LOG_TASK).toString());
 			console.log(new Buffer(execSync('cd ' + YWORKFLOW_PATH + '&& gulp rev-views-deps  --hash ' + _useHash + ' --path ' + _progressPath + SHELL_LOG_TASK)).toString());
+		}
+
+		if (!!argv['sw']) {
+			console.log('[生成service worker信息]')
+            console.log(execSync('cd ' + YWORKFLOW_PATH + ' && gulp sw --path ' + _progressPath + SHELL_LOG_TASK).toString());
 		}
 
 		// 若开启了combo,则进行combo处理

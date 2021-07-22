@@ -4,6 +4,9 @@
 
 ## 更新
 
+* 2021.07.22 -- 0.1.26 锁死 del-cli@3.0.1
+* 2018.01.26 -- 0.1.25 增加了ywork.config.js的配置，有json使用json，否则使用ywork.config.js
+* 2018.01.26 -- 0.1.24 增加一下sw(service worker的支持)
 * 2017.12.18 -- 0.1.23 manifest.json里面设置倒序排列, 修复woff2=>woff问题
 * 2017.10.19 -- 0.1.22 修复del模块的依赖问题
 * 2017.08.21 -- 0.1.21 修复utils/deps.js遍历的bug
@@ -129,6 +132,48 @@ LBF.config({
     }
 }
 ```
-
+#### 新增workbox的sw生成
+"sw": [
+        {
+        "globDirectory": "./dist/static/",
+        "globPattern": ["**\/*.{js,css}"],
+        "swDest": "./dist/views/m.webnovel.com/sw-dev.js",
+        "modifyUrlPrefix": {
+            "overseam": "https://devwww.yueimg.com/overseam"
+        },
+        "clientsClaim": true,
+        "skipWaiting": true
+        },
+        {
+            "globDirectory": "./dist/static/",
+            "globPattern": ["**\/*.{js,css}"],
+            "swDest": "./dist/views/m.webnovel.com/sw-oa.js",
+            "modifyUrlPrefix": {
+                "overseam": "https://oawww.yueimg.com/overseam"
+            },
+            "clientsClaim": true,
+            "skipWaiting": true
+        },
+        {
+            "globDirectory": "./dist/static/",
+            "globPattern": ["**\/*.{js,css}"],
+            "swDest": "./dist/views/m.webnovel.com/sw-pre.js",
+            "modifyUrlPrefix": {
+                "overseam": "https://prewww.yueimg.com/overseam"
+            },
+            "clientsClaim": true,
+            "skipWaiting": true
+        },
+        {
+            "globDirectory": "./dist/static/",
+            "globPattern": ["**\/*.{js,css}"],
+            "swDest": "./dist/views/m.webnovel.com/sw.js",
+            "modifyUrlPrefix": {
+                "overseam": "https://www.yueimg.com/overseam"
+            },
+            "clientsClaim": true,
+            "skipWaiting": true
+        }
+    ]
 
 

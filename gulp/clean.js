@@ -9,6 +9,7 @@ var del = require('del');
 var gutil = require('gulp-util');
 var cleanCSS = require('gulp-clean-css');
 var _ = require('lodash');
+var config = require('../utils/config');
 
 gulp.task('clean', function(cb) {
 	var progressPash = gutil.env.path ? gutil.env.path : '';
@@ -47,7 +48,7 @@ gulp.task('clean-css-sourcemap', function(cb) {
 	}
 
 	try {
-		var custome_project_config = require(_progressPash + '/ywork.config.json');
+		var custome_project_config = config(_progressPash);
 		PROJECT_CONFIG = _.assign(PROJECT_CONFIG, custome_project_config);
 	} catch (e) {
 		console.log(e);
