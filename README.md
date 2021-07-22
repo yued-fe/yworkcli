@@ -24,7 +24,7 @@
 
 ## 安装
 
-安装`npm install -g Yworkcli del-cli`
+安装`npm install -g Yworkcli del-cli@3.0.1`
 
 采用的是全局安装,命令行调用。
 
