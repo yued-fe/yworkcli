@@ -4,6 +4,7 @@
 
 ## 更新
 
+* 2022.09.05 -- 0.1.27 更新yworkflow版本
 * 2021.07.22 -- 0.1.26 锁死 del-cli@3.0.1
 * 2018.01.26 -- 0.1.25 增加了ywork.config.js的配置，有json使用json，否则使用ywork.config.js
 * 2018.01.26 -- 0.1.24 增加一下sw(service worker的支持)
